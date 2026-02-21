@@ -95,10 +95,14 @@ export function useTasks() {
   async function createTask(task: Partial<Task>) {
     if (!supabase) return null
 
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('User not authenticated')
+
     const { data, error } = await supabase
       .from('tasks')
       .insert([{
         ...task,
+        user_id: user.id,
         status: 'todo',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -183,10 +187,14 @@ export function useHearings() {
   async function createHearing(hearing: Partial<Hearing>) {
     if (!supabase) return null
 
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('User not authenticated')
+
     const { data, error } = await supabase
       .from('hearings')
       .insert([{
         ...hearing,
+        user_id: user.id,
         status: 'scheduled',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -266,10 +274,14 @@ export function useFinancials() {
   async function createFinancial(financial: Partial<Financial>) {
     if (!supabase) return null
 
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('User not authenticated')
+
     const { data, error } = await supabase
       .from('financials')
       .insert([{
         ...financial,
+        user_id: user.id,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }])
