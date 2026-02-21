@@ -363,14 +363,11 @@ export function TasksView() {
       </div>
 
       {/* Add Task Modal */}
-      <AnimatePresence>
-        {showAddModal && (
-          <AddTaskModal
-            onClose={() => setShowAddModal(false)}
-            onAdd={handleAddTask}
-          />
-        )}
-      </AnimatePresence>
+      <AddTaskModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onAdd={handleAddTask}
+      />
 
       {/* Task Detail Modal */}
       <AnimatePresence>

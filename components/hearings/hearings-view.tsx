@@ -330,72 +330,50 @@ export function HearingsView() {
       </div>
 
       {/* Add Hearing Modal */}
-      <AnimatePresence>
-        {showAddForm && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="glass-card p-6 max-w-md w-full max-h-[90vh] overflow-y-auto"
-            >
-              <h2 className="text-xl font-bold mb-4">Yeni Duruşma Ekle</h2>
-              <AddHearingForm
-                onSubmit={async (data) => {
-                  await createHearing({
-                    title: data.title,
-                    client_name: data.clientName,
-                    court_name: data.courtName,
-                    hearing_date: data.hearingDate,
-                    location: data.location,
-                    time: data.hearingTime,
-                  })
-                  setShowAddForm(false)
-                }}
-                onCancel={() => setShowAddForm(false)}
-              />
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <AddHearingForm
+        isOpen={showAddForm}
+        onClose={() => setShowAddForm(false)}
+        onSubmit={async (data) => {
+          await createHearing({
+            title: data.title,
+            client_name: data.clientName,
+            court_name: data.courtName,
+            hearing_date: data.hearingDate,
+            location: data.location,
+            time: data.hearingTime,
+          })
+          setShowAddForm(false)
+        }}
+        onCancel={() => setShowAddForm(false)}
+      />
 
       {/* Edit Hearing Modal */}
-      <AnimatePresence>
-        {editingHearing && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="glass-card p-6 max-w-md w-full max-h-[90vh] overflow-y-auto"
-            >
-              <h2 className="text-xl font-bold mb-4">Duruşma Düzenle</h2>
-              <AddHearingForm
-                initialData={{
-                  title: editingHearing.title,
-                  clientName: editingHearing.client_name,
-                  courtName: editingHearing.court_name,
-                  hearingDate: editingHearing.hearing_date,
-                  location: editingHearing.location,
-                  hearingTime: editingHearing.time,
-                }}
-                onSubmit={async (data) => {
-                  await updateHearing(editingHearing.id, {
-                    title: data.title,
-                    client_name: data.clientName,
-                    court_name: data.courtName,
-                    hearing_date: data.hearingDate,
-                    location: data.location,
-                    time: data.hearingTime,
-                  })
-                  setEditingHearing(null)
-                }}
-                onCancel={() => setEditingHearing(null)}
-              />
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <AddHearingForm
+        isOpen={!!editingHearing}
+        onClose={() => setEditingHearing(null)}
+        initialData={editingHearing ? {
+          title: editingHearing.title,
+          clientName: editingHearing.client_name,
+          courtName: editingHearing.court_name,
+          hearingDate: editingHearing.hearing_date,
+          location: editingHearing.location,
+          hearingTime: editingHearing.time,
+        } : undefined}
+        onSubmit={async (data) => {
+          if (editingHearing) {
+            await updateHearing(editingHearing.id, {
+              title: data.title,
+              client_name: data.clientName,
+              court_name: data.courtName,
+              hearing_date: data.hearingDate,
+              location: data.location,
+              time: data.hearingTime,
+            })
+            setEditingHearing(null)
+          }
+        }}
+        onCancel={() => setEditingHearing(null)}
+      />
     </div>
   )
 }
