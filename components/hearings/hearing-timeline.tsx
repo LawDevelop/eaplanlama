@@ -2,17 +2,7 @@
 
 import { Clock, MapPin, User, Calendar } from 'lucide-react'
 import { motion } from 'framer-motion'
-
-interface Hearing {
-  id: string
-  title: string
-  clientName: string
-  fileNumber: string
-  courtName: string
-  hearingDate: string
-  location: string
-  status: 'scheduled' | 'postponed' | 'completed' | 'cancelled'
-}
+import type { Hearing } from '@/hooks/use-supabase-data'
 
 interface HearingTimelineProps {
   hearings: Hearing[]
@@ -22,10 +12,10 @@ interface HearingTimelineProps {
 export function HearingTimeline({ hearings, onHearingClick }: HearingTimelineProps) {
   // Group hearings by date
   const groupedHearings = hearings.reduce((acc, hearing) => {
-    const date = new Date(hearing.hearingDate).toLocaleDateString('tr-TR', { 
-      day: 'numeric', 
-      month: 'long', 
-      year: 'numeric' 
+    const date = new Date(hearing.hearing_date).toLocaleDateString('tr-TR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
     })
     if (!acc[date]) {
       acc[date] = []
@@ -35,8 +25,8 @@ export function HearingTimeline({ hearings, onHearingClick }: HearingTimelinePro
   }, {} as Record<string, Hearing[]>)
 
   const sortedDates = Object.keys(groupedHearings).sort((a, b) => {
-    const dateA = new Date(groupedHearings[a][0].hearingDate)
-    const dateB = new Date(groupedHearings[b][0].hearingDate)
+    const dateA = new Date(groupedHearings[a][0].hearing_date)
+    const dateB = new Date(groupedHearings[b][0].hearing_date)
     return dateA.getTime() - dateB.getTime()
   })
 
@@ -88,11 +78,11 @@ export function HearingTimeline({ hearings, onHearingClick }: HearingTimelinePro
             {/* Hearings for this date */}
             <div className="ml-16 space-y-3">
               {dayHearings
-                .sort((a, b) => new Date(a.hearingDate).getTime() - new Date(b.hearingDate).getTime())
+                .sort((a, b) => new Date(a.hearing_date).getTime() - new Date(b.hearing_date).getTime())
                 .map((hearing, index) => {
-                  const time = new Date(hearing.hearingDate).toLocaleTimeString('tr-TR', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
+                  const time = new Date(hearing.hearing_date).toLocaleTimeString('tr-TR', {
+                    hour: '2-digit',
+                    minute: '2-digit'
                   })
                   const config = statusConfig[hearing.status]
 
@@ -120,13 +110,12 @@ export function HearingTimeline({ hearings, onHearingClick }: HearingTimelinePro
                           <div className="space-y-2 text-sm text-[hsl(var(--muted-foreground))]">
                             <div className="flex items-center gap-2">
                               <User className="w-4 h-4" />
-                              <span>{hearing.clientName}</span>
-                              <span className="text-xs">({hearing.fileNumber})</span>
+                              <span>{hearing.client_name}</span>
                             </div>
                             
                             <div className="flex items-center gap-2">
                               <MapPin className="w-4 h-4" />
-                              <span>{hearing.courtName} - {hearing.location}</span>
+                              <span>{hearing.court_name} - {hearing.location}</span>
                             </div>
                           </div>
                         </div>

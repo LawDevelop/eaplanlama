@@ -181,7 +181,7 @@ export function HearingsView() {
                   court_name: data.courtName,
                   hearing_date: data.hearingDate,
                   location: data.location,
-                  time: data.time,
+                  time: data.hearingTime,
                 })
                 setShowAddForm(false)
               }}
@@ -203,7 +203,7 @@ export function HearingsView() {
                 courtName: editingHearing.court_name,
                 hearingDate: editingHearing.hearing_date,
                 location: editingHearing.location,
-                time: editingHearing.time,
+                hearingTime: editingHearing.time,
               }}
               onSubmit={async (data) => {
                 await updateHearing(editingHearing.id, {
@@ -212,7 +212,7 @@ export function HearingsView() {
                   court_name: data.courtName,
                   hearing_date: data.hearingDate,
                   location: data.location,
-                  time: data.time,
+                  time: data.hearingTime,
                 })
                 setEditingHearing(null)
               }}

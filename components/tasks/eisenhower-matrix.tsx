@@ -3,16 +3,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { AlertCircle, Clock, Trash2, Archive } from 'lucide-react'
-
-interface Task {
-  id: string
-  title: string
-  clientName?: string
-  priority: 'low' | 'medium' | 'high' | 'critical'
-  dueDate?: string
-  urgent?: boolean
-  important?: boolean
-}
+import type { Task } from '@/hooks/use-supabase-data'
 
 interface EisenhowerMatrixProps {
   tasks: Task[]
@@ -23,8 +14,8 @@ interface EisenhowerMatrixProps {
 export function EisenhowerMatrix({ tasks, onTaskClick, onTaskMove }: EisenhowerMatrixProps) {
   // Görevleri kuadranlara ayır
   const categorizeTask = (task: Task) => {
-    const isUrgent = task.urgent ?? (task.priority === 'critical' || task.priority === 'high')
-    const isImportant = task.important ?? (task.priority === 'critical' || task.priority === 'high')
+    const isUrgent = task.priority === 'critical' || task.priority === 'high'
+    const isImportant = task.priority === 'critical' || task.priority === 'high'
     
     if (isUrgent && isImportant) return 'urgent-important'
     if (!isUrgent && isImportant) return 'not-urgent-important'
@@ -128,14 +119,14 @@ export function EisenhowerMatrix({ tasks, onTaskClick, onTaskMove }: EisenhowerM
                       className="p-3 rounded-xl bg-[hsl(var(--card))] border border-[hsl(var(--card-border))] hover:shadow-md transition-all cursor-pointer"
                     >
                       <h5 className="font-medium text-sm mb-1">{task.title}</h5>
-                      {task.clientName && (
+                      {task.client_name && (
                         <p className="text-xs text-[hsl(var(--muted-foreground))]">
-                          {task.clientName}
+                          {task.client_name}
                         </p>
                       )}
-                      {task.dueDate && (
+                      {task.due_date && (
                         <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1">
-                          {new Date(task.dueDate).toLocaleDateString('tr-TR', {
+                          {new Date(task.due_date).toLocaleDateString('tr-TR', {
                             day: '2-digit',
                             month: 'short',
                           })}

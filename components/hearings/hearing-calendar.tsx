@@ -3,16 +3,7 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react'
 import { motion } from 'framer-motion'
-
-interface Hearing {
-  id: string
-  title: string
-  clientName: string
-  courtName: string
-  hearingDate: string
-  location: string
-  status: 'scheduled' | 'postponed' | 'completed' | 'cancelled'
-}
+import type { Hearing } from '@/hooks/use-supabase-data'
 
 interface HearingCalendarProps {
   hearings: Hearing[]
@@ -43,7 +34,7 @@ export function HearingCalendar({ hearings, onHearingClick }: HearingCalendarPro
 
   const getHearingsForDate = (day: number) => {
     const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-    return hearings.filter(h => h.hearingDate.startsWith(dateStr))
+    return hearings.filter(h => h.hearing_date.startsWith(dateStr))
   }
 
   const days = getDaysInMonth(currentDate)
@@ -145,7 +136,7 @@ export function HearingCalendar({ hearings, onHearingClick }: HearingCalendarPro
           </h3>
           <div className="space-y-3">
             {selectedDayHearings.map((hearing) => {
-              const time = new Date(hearing.hearingDate).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
+              const time = new Date(hearing.hearing_date).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })
               return (
                 <div
                   key={hearing.id}
@@ -155,7 +146,7 @@ export function HearingCalendar({ hearings, onHearingClick }: HearingCalendarPro
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <h4 className="font-semibold mb-1">{hearing.title}</h4>
-                      <p className="text-sm text-[hsl(var(--muted-foreground))] mb-2">{hearing.clientName}</p>
+                      <p className="text-sm text-[hsl(var(--muted-foreground))] mb-2">{hearing.client_name}</p>
                       <div className="flex items-center gap-4 text-xs text-[hsl(var(--muted-foreground))]">
                         <div className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />

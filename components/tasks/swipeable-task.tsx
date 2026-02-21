@@ -4,23 +4,16 @@ import { useState } from 'react'
 import { useSwipeable } from 'react-swipeable'
 import { Check, Trash2, Clock, User, CheckCircle, Edit3 } from 'lucide-react'
 import { motion, useMotionValue, useTransform } from 'framer-motion'
-
-interface Task {
-  id: string
-  title: string
-  clientName?: string
-  fileNumber?: string
-  priority: 'low' | 'medium' | 'high' | 'critical'
-  dueDate?: string
-  completed: boolean
-  tags?: string[]
-}
+import type { Task } from '@/hooks/use-supabase-data'
 
 interface SwipeableTaskProps {
   task: Task
   onComplete?: (id: string) => void
   onDelete?: (id: string) => void
   onClick?: () => void
+  selected?: boolean
+  onToggleSelect?: () => void
+  bulkMode?: boolean
 }
 
 const priorityConfig = {
@@ -117,20 +110,20 @@ export function SwipeableTask({ task, onComplete, onDelete, onClick }: Swipeable
           <div className="flex-1 space-y-3">
             <h3 className="font-semibold text-lg">{task.title}</h3>
             
-            {task.clientName && (
+            {task.client_name && (
               <div className="flex items-center gap-2 text-sm text-[hsl(var(--muted-foreground))]">
                 <User className="w-4 h-4" />
-                <span>{task.clientName}</span>
-                {task.fileNumber && <span>• {task.fileNumber}</span>}
+                <span>{task.client_name}</span>
+                {task.file_number && <span>• {task.file_number}</span>}
               </div>
             )}
             
-            {task.dueDate && (
+            {task.due_date && (
               <div className="flex items-center gap-2 text-sm text-[hsl(var(--muted-foreground))]">
                 <Clock className="w-4 h-4" />
-                <span>{new Date(task.dueDate).toLocaleDateString('tr-TR', { 
-                  day: '2-digit', 
-                  month: 'long' 
+                <span>{new Date(task.due_date).toLocaleDateString('tr-TR', {
+                  day: '2-digit',
+                  month: 'long'
                 })}</span>
               </div>
             )}
@@ -162,7 +155,7 @@ export function SwipeableTask({ task, onComplete, onDelete, onClick }: Swipeable
                   onComplete?.(task.id)
                 }}
                 className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
-                  task.completed
+                  task.status === 'completed'
                     ? 'bg-green-100 text-green-600'
                     : 'bg-gray-100 text-gray-400 hover:bg-green-50 hover:text-green-600'
                 }`}

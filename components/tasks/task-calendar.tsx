@@ -3,16 +3,7 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { motion } from 'framer-motion'
-
-interface Task {
-  id: string
-  title: string
-  clientName?: string
-  fileNumber?: string
-  priority: 'low' | 'medium' | 'high' | 'critical'
-  dueDate?: string
-  completed: boolean
-}
+import type { Task } from '@/hooks/use-supabase-data'
 
 interface TaskCalendarProps {
   tasks: Task[]
@@ -49,7 +40,7 @@ export function TaskCalendar({ tasks, onTaskClick }: TaskCalendarProps) {
 
   const getTasksForDate = (day: number) => {
     const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
-    return tasks.filter(task => task.dueDate === dateStr)
+    return tasks.filter(task => task.due_date === dateStr)
   }
 
   const days = getDaysInMonth(currentDate)

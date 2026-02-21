@@ -4,19 +4,7 @@ import { useState } from 'react'
 import { X, Plus, Clock, Tag, Paperclip, History, Share2, Play, Pause, Trash2, Check, Timer } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { PomodoroTimer } from './pomodoro-timer'
-
-interface Task {
-  id: string
-  title: string
-  description?: string
-  clientName?: string
-  fileNumber?: string
-  priority: 'low' | 'medium' | 'high' | 'critical'
-  dueDate?: string
-  tags?: string[]
-  timeSpentMinutes?: number
-  timeTrackingActive?: boolean
-}
+import type { Task } from '@/hooks/use-supabase-data'
 
 interface TaskDetailModalProps {
   isOpen: boolean
@@ -36,7 +24,7 @@ export function TaskDetailModal({ isOpen, onClose, task }: TaskDetailModalProps)
   ])
   const [newNote, setNewNote] = useState('')
   const [isTracking, setIsTracking] = useState(false)
-  const [timeSpent, setTimeSpent] = useState(task.timeSpentMinutes || 0)
+  const [timeSpent, setTimeSpent] = useState(0)
 
   const addChecklistItem = () => {
     if (newChecklistItem.trim()) {
@@ -94,9 +82,9 @@ export function TaskDetailModal({ isOpen, onClose, task }: TaskDetailModalProps)
               <div className="flex items-start justify-between p-6 border-b border-[hsl(var(--card-border))]">
                 <div className="flex-1">
                   <h2 className="text-2xl font-bold mb-2">{task.title}</h2>
-                  {task.clientName && (
+                  {task.client_name && (
                     <p className="text-sm text-[hsl(var(--muted-foreground))]">
-                      {task.clientName} {task.fileNumber && `• ${task.fileNumber}`}
+                      {task.client_name} {task.file_number && `• ${task.file_number}`}
                     </p>
                   )}
                 </div>
@@ -294,7 +282,7 @@ export function TaskDetailModal({ isOpen, onClose, task }: TaskDetailModalProps)
                   <PomodoroTimer
                     taskId={task.id}
                     onSessionComplete={(duration) => {
-                      setTimeSpent(prev => prev + duration)
+                      setTimeSpent((prev: number) => prev + duration)
                       console.log('Pomodoro completed:', duration)
                     }}
                   />

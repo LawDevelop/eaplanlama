@@ -25,9 +25,12 @@ interface AddHearingFormProps {
   isOpen?: boolean
   onClose?: () => void
   editHearing?: Hearing | null
+  initialData?: any
+  onSubmit?: (data: Hearing) => Promise<void> | void
+  onCancel?: () => void
 }
 
-export function AddHearingForm({ isOpen, onClose, editHearing }: AddHearingFormProps) {
+export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSubmit, onCancel }: AddHearingFormProps) {
   const isModal = isOpen !== undefined
   const [formData, setFormData] = useState<Hearing>({
     title: '',
@@ -44,6 +47,18 @@ export function AddHearingForm({ isOpen, onClose, editHearing }: AddHearingFormP
   useEffect(() => {
     if (editHearing) {
       setFormData(editHearing)
+    } else if (initialData) {
+      setFormData({
+        title: initialData.title || '',
+        clientName: initialData.clientName || '',
+        fileNumber: initialData.fileNumber || '',
+        courtName: initialData.courtName || '',
+        hearingDate: initialData.hearingDate || '',
+        hearingTime: initialData.hearingTime || '',
+        location: initialData.location || '',
+        hearingType: initialData.hearingType || 'first',
+        notes: initialData.notes || '',
+      })
     } else {
       setFormData({
         title: '',
@@ -57,13 +72,24 @@ export function AddHearingForm({ isOpen, onClose, editHearing }: AddHearingFormP
         notes: '',
       })
     }
-  }, [editHearing])
+  }, [editHearing, initialData])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Handle form submission (create or update)
-    console.log('Hearing data:', formData)
-    if (onClose) onClose()
+    if (onSubmit) {
+      await onSubmit(formData)
+    } else {
+      console.log('Hearing data:', formData)
+      if (onClose) onClose()
+    }
+  }
+
+  const handleCancel = () => {
+    if (onCancel) {
+      onCancel()
+    } else if (onClose) {
+      onClose()
+    }
   }
 
   const FormContent = () => (
@@ -200,11 +226,11 @@ export function AddHearingForm({ isOpen, onClose, editHearing }: AddHearingFormP
 
         {isModal ? (
           <div className="flex gap-3 pt-4">
-            <Button type="button" onClick={onClose} variant="outline" className="flex-1">
+            <Button type="button" onClick={handleCancel} variant="outline" className="flex-1">
               İptal
             </Button>
             <Button type="submit" className="flex-1">
-              {editHearing ? 'Güncelle' : 'Duruşma Ekle'}
+              {editHearing || initialData ? 'Güncelle' : 'Duruşma Ekle'}
             </Button>
           </div>
         ) : (
