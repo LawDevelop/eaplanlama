@@ -1,4 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+
+// Service Role Key ile admin erişimi (RLS bypass)
+const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      { auth: { persistSession: false } }
+    )
+  : null
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,28 +24,6 @@ export async function POST(request: NextRequest) {
 
       let responseText = ''
 
-      // Mock hearing data
-      const mockHearings = [
-        { id: '1', title: 'Boşanma Davası', clientName: 'Ahmet Yılmaz', courtName: 'Aile Mahkemesi', hearingDate: '2025-01-22', time: '10:00', location: 'Salon 3' },
-        { id: '2', title: 'İş Davası', clientName: 'Zeynep Kara', courtName: 'İş Mahkemesi', hearingDate: '2025-01-24', time: '14:00', location: 'Salon 1' },
-        { id: '3', title: 'Tazminat Davası', clientName: 'Mehmet Demir', courtName: 'Asliye Hukuk', hearingDate: '2025-01-27', time: '11:00', location: 'Salon 2' },
-        { id: '4', title: 'Kira Tahliye', clientName: 'Ayşe Kaya', courtName: 'İcra Hukuk', hearingDate: '2025-01-29', time: '09:30', location: 'Salon 4' },
-        { id: '5', title: 'Evlilik Öncesi Mal Rehin', clientName: 'Ali Öz', courtName: 'Sulh Hukuk', hearingDate: '2025-01-30', time: '15:00', location: 'Salon 2' },
-      ]
-
-      // Mock task data
-      const mockTasks = [
-        { id: '1', title: 'Dilekçe hazırla', clientName: 'Mehmet Demir', priority: 'high', completed: false },
-        { id: '2', title: 'Belge toplama', clientName: 'Ayşe Kaya', priority: 'medium', completed: false },
-        { id: '3', title: 'Mahkeme dosyası inceleme', clientName: 'Ali Yılmaz', priority: 'critical', completed: false },
-        { id: '4', title: 'Müvekkil görüşmesi', clientName: 'Fatma Öz', priority: 'low', completed: true },
-      ]
-
-      // Mock finance data
-      const monthlyIncome = 125000
-      const monthlyExpense = 45000
-      const balance = monthlyIncome - monthlyExpense
-
       // Handle commands
       switch (text.toLowerCase()) {
         case '/start':
@@ -43,32 +31,91 @@ export async function POST(request: NextRequest) {
           break
 
         case '/bugun':
-          const todayTasks = mockTasks.filter(t => !t.completed)
-          if (todayTasks.length === 0) {
-            responseText = `✅ *Bugün yapılacak görev yok!*`
+          if (supabase) {
+            // Bugünkü görevleri Supabase'den al
+            const today = new Date().toISOString().split('T')[0]
+            const { data: tasks, error } = await supabase
+              .from('tasks')
+              .select('title, client_name, priority')
+              .eq('completed', false)
+              .lte('due_date', today)
+              .order('priority', { ascending: false })
+              .limit(10)
+
+            if (error || !tasks || tasks.length === 0) {
+              responseText = `✅ *Bugün yapılacak görev yok!*`
+            } else {
+              responseText = `📅 *Bugünkü Görevler* (${tasks.length} adet)\n\n`
+              tasks.forEach((task: any) => {
+                const priorityEmoji = task.priority === 'critical' ? '🔴' : task.priority === 'high' ? '🟠' : task.priority === 'medium' ? '🟡' : '🔵'
+                responseText += `${priorityEmoji} ${task.title}\n   👤 ${task.client_name || 'Belirtilmemiş'}\n\n`
+              })
+            }
           } else {
-            responseText = `📅 *Bugünkü Görevler* (${todayTasks.length} adet)\n\n`
-            todayTasks.forEach((task, i) => {
-              const priorityEmoji = task.priority === 'critical' ? '🔴' : task.priority === 'high' ? '🟠' : task.priority === 'medium' ? '🟡' : '🔵'
-              responseText += `${priorityEmoji} ${task.title}\n   👤 ${task.clientName}\n\n`
-            })
+            responseText = `⚠️ Supabase bağlantısı kurulamadı. Lütfen environment variables ayarlayın.`
           }
           break
 
         case '/durusmalar':
-          const upcomingHearings = mockHearings.slice(0, 5)
-          responseText = `⚖️ *Yaklaşan Duruşmalar* (${upcomingHearings.length} adet)\n\n`
-          upcomingHearings.forEach((hearing) => {
-            const date = new Date(hearing.hearingDate).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' })
-            responseText += `📅 ${date} - ${hearing.time}\n⚖️ ${hearing.title}\n👤 ${hearing.clientName}\n📍 ${hearing.courtName} - ${hearing.location}\n\n`
-          })
+          if (supabase) {
+            // Yaklaşan duruşmaları Supabase'den al
+            const today = new Date().toISOString().split('T')[0]
+            const { data: hearings, error } = await supabase
+              .from('hearings')
+              .select('*')
+              .gte('hearing_date', today)
+              .order('hearing_date', { ascending: true })
+              .limit(5)
+
+            if (error || !hearings || hearings.length === 0) {
+              responseText = `📋 *Yaklaşan duruşma bulunmamaktadır.*`
+            } else {
+              responseText = `⚖️ *Yaklaşan Duruşmalar* (${hearings.length} adet)\n\n`
+              hearings.forEach((hearing: any) => {
+                const date = new Date(hearing.hearing_date).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric' })
+                const time = hearing.time || 'Belirtilmemiş'
+                responseText += `📅 ${date} - ${time}\n⚖️ ${hearing.title || 'Duruşma'}\n👤 ${hearing.client_name || 'Belirtilmemiş'}\n📍 ${hearing.court_name || 'Mahkeme'} - ${hearing.location || 'Salon'}\n\n`
+              })
+            }
+          } else {
+            responseText = `⚠️ Supabase bağlantısı kurulamadı. Lütfen environment variables ayarlayın.`
+          }
           break
 
         case '/gelirler':
-          responseText = `💰 *Aylık Gelir Özeti*\n\n`
-          responseText += `📈 Toplam Gelir: ${monthlyIncome.toLocaleString('tr-TR')} ₺\n`
-          responseText += `📉 Toplam Gider: ${monthlyExpense.toLocaleString('tr-TR')} ₺\n`
-          responseText += `💵 *Net Bakiye: ${balance.toLocaleString('tr-TR')} ₺*`
+          if (supabase) {
+            // Bu ayın gelir ve giderlerini hesapla
+            const now = new Date()
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString()
+
+            // Gelirler
+            const { data: income } = await supabase
+              .from('finance_transactions')
+              .select('amount')
+              .eq('type', 'income')
+              .gte('transaction_date', firstDay)
+              .lte('transaction_date', lastDay)
+
+            // Giderler
+            const { data: expenses } = await supabase
+              .from('finance_transactions')
+              .select('amount')
+              .eq('type', 'expense')
+              .gte('transaction_date', firstDay)
+              .lte('transaction_date', lastDay)
+
+            const totalIncome = income?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0
+            const totalExpense = expenses?.reduce((sum, t) => sum + (t.amount || 0), 0) || 0
+            const balance = totalIncome - totalExpense
+
+            responseText = `💰 *Aylık Gelir Özeti*\n\n`
+            responseText += `📈 Toplam Gelir: ${totalIncome.toLocaleString('tr-TR')} ₺\n`
+            responseText += `📉 Toplam Gider: ${totalExpense.toLocaleString('tr-TR')} ₺\n`
+            responseText += `💵 *Net Bakiye: ${balance.toLocaleString('tr-TR')} ₺*`
+          } else {
+            responseText = `⚠️ Supabase bağlantısı kurulamadı. Lütfen environment variables ayarlayın.`
+          }
           break
 
         case '/yardim':
@@ -77,7 +124,7 @@ export async function POST(request: NextRequest) {
           break
 
         default:
-          responseText = `❓ Bilinmeyen komut. /yardim yazarak kullanılabilir komutları görebilirsiniz.`
+          responseText = `❓ Bilinmeyen komut. /yardım yazarak kullanılabilir komutları görebilirsiniz.`
       }
 
       // Send response to Telegram
