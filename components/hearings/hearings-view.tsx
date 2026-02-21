@@ -30,8 +30,8 @@ const mockHearings = [
     courtName: 'İstanbul 12. İş Mahkemesi',
     hearingDate: '2024-02-28T14:00:00',
     location: 'Salon 1',
-    status: 'scheduled' as const,
-    preparationProgress: 45,
+    status: 'completed' as const,
+    preparationProgress: 100,
   },
   {
     id: '3',
@@ -41,7 +41,7 @@ const mockHearings = [
     courtName: 'Ankara 2. Asliye Hukuk Mahkemesi',
     hearingDate: '2024-03-05T11:00:00',
     location: 'Salon 2',
-    status: 'scheduled' as const,
+    status: 'postponed' as const,
     preparationProgress: 30,
   },
 ]
