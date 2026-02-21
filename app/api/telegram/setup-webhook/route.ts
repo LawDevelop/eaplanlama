@@ -15,7 +15,8 @@ export async function POST(request: NextRequest) {
 
     // Determine the webhook URL based on the request origin
     const origin = request.headers.get('origin') || request.nextUrl.origin
-    const webhookUrl = `${origin}/api/telegram/webhook?token=${encodeURIComponent(botToken)}`
+    // Use trailing slash for Vercel
+    const webhookUrl = `${origin}/api/telegram/webhook/?token=${encodeURIComponent(botToken)}`
 
     // Set the webhook on Telegram
     const response = await fetch(

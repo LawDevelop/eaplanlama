@@ -8,10 +8,6 @@ const nextConfig = {
   images: {
     domains: [],
   },
-  // Prevent trailing slash redirect for webhooks
-  trailingSlash: false,
-  // Skip trailing slash redirect for API routes
-  skipTrailingSlashRedirect: true,
 }
 
 module.exports = nextConfig
