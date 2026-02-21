@@ -74,7 +74,8 @@ export async function POST(request: NextRequest) {
 // Get webhook info
 export async function GET(request: NextRequest) {
   try {
-    const botToken = request.cookies.get('tg_bot_token')?.value || process.env.TELEGRAM_BOT_TOKEN
+    const tokenParam = request.nextUrl.searchParams.get('token')
+    const botToken = tokenParam || request.cookies.get('tg_bot_token')?.value || process.env.TELEGRAM_BOT_TOKEN
 
     if (!botToken) {
       return NextResponse.json({ error: 'Bot token not configured' }, { status: 400 })
