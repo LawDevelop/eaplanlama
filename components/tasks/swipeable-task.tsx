@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useSwipeable } from 'react-swipeable'
-import { Check, Trash2, Clock, User } from 'lucide-react'
+import { Check, Trash2, Clock, User, CheckCircle, Edit3 } from 'lucide-react'
 import { motion, useMotionValue, useTransform } from 'framer-motion'
 
 interface Task {
@@ -149,8 +149,38 @@ export function SwipeableTask({ task, onComplete, onDelete, onClick }: Swipeable
             )}
           </div>
           
-          <div className={`px-3 py-1.5 rounded-xl text-xs font-semibold border ${config.class}`}>
-            {config.label}
+          <div className="flex flex-col items-end gap-2">
+            <div className={`px-3 py-1.5 rounded-xl text-xs font-semibold border ${config.class}`}>
+              {config.label}
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onComplete?.(task.id)
+                }}
+                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+                  task.completed
+                    ? 'bg-green-100 text-green-600'
+                    : 'bg-gray-100 text-gray-400 hover:bg-green-50 hover:text-green-600'
+                }`}
+                title="Tamamla"
+              >
+                <CheckCircle className="w-4 h-4" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onDelete?.(task.id)
+                }}
+                className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-100 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-all"
+                title="Sil"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </motion.div>
