@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { X } from 'lucide-react'
+import { X, Plus } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface AddTaskModalProps {
@@ -40,17 +40,17 @@ export function AddTaskModal({ isOpen, onClose }: AddTaskModalProps) {
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
           />
 
-          {/* Modal */}
+          {/* Modal - Bottom Sheet on Mobile, Right-Bottom on Desktop */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[calc(100%-2rem)] md:w-full md:max-w-2xl z-50"
+            className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[calc(100%-2rem)] sm:w-[420px] max-h-[calc(100vh-2rem)] sm:max-h-[85vh] z-50"
           >
-            <div className="elite-card w-full h-full md:h-auto max-h-[90vh] overflow-y-auto p-6">
+            <div className="elite-card w-full h-full sm:h-auto overflow-y-auto p-4 sm:p-6 custom-scrollbar">
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold">Yeni Görev</h2>
+                <h2 className="text-xl sm:text-2xl font-bold">Yeni Görev</h2>
                 <button
                   onClick={onClose}
                   className="w-9 h-9 rounded-xl bg-[hsl(var(--secondary))] hover:bg-[hsl(var(--muted))] flex items-center justify-center transition-colors"
@@ -164,5 +164,16 @@ export function AddTaskModal({ isOpen, onClose }: AddTaskModalProps) {
         </>
       )}
     </AnimatePresence>
+  )
+}
+
+export function FloatingAddTaskButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg shadow-green-500/30 hover:shadow-green-500/50 hover:scale-110 transition-all z-40 flex items-center justify-center"
+    >
+      <Plus className="w-6 h-6" />
+    </button>
   )
 }
