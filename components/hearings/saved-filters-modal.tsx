@@ -67,7 +67,7 @@ export function SavedFiltersModal({ isOpen, onClose, onApplyFilter }: SavedFilte
   ])
 
   const getCriteriaText = (criteria: SavedFilter['criteria']) => {
-    const parts = []
+    const parts: string[] = []
     if (criteria.status) {
       const statusLabels = {
         scheduled: 'Planlanmış',

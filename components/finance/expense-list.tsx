@@ -2,9 +2,17 @@
 
 import { Card, CardContent } from '@/components/ui/card'
 
+interface Expense {
+  id: string
+  amount: number
+  category: string
+  description: string
+  date: string
+}
+
 export function ExpenseList() {
   // TODO: Fetch from Supabase
-  const expenses = []
+  const expenses: Expense[] = []
 
   return (
     <div className="space-y-4">

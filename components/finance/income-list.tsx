@@ -4,9 +4,16 @@ import { Card, CardContent } from '@/components/ui/card'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { AlertCircle } from 'lucide-react'
 
+interface Income {
+  id: string
+  amount: number
+  clientName: string
+  date: string
+}
+
 export function IncomeList() {
   // TODO: Fetch from Supabase
-  const incomes = []
+  const incomes: Income[] = []
 
   return (
     <div className="space-y-4">

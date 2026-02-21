@@ -37,7 +37,7 @@ export function TaskCalendar({ tasks, onTaskClick }: TaskCalendarProps) {
     const daysInMonth = lastDay.getDate()
     const startingDayOfWeek = firstDay.getDay()
 
-    const days = []
+    const days: (number | null)[] = []
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null)
     }

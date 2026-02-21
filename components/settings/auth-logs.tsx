@@ -3,9 +3,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatDateTime } from '@/lib/utils'
 
+interface AuthLog {
+  id: string
+  action: string
+  created_at: string
+}
+
 export function AuthLogs() {
   // TODO: Fetch from Supabase
-  const logs = []
+  const logs: AuthLog[] = []
 
   return (
     <Card>
