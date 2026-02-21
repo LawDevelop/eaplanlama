@@ -1,11 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, Edit2, Plus } from 'lucide-react'
+import { X, Plus, Calendar as CalendarIcon, User, FileText, Scale, MapPin, Clock } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 
 interface Hearing {
@@ -59,18 +58,6 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
         hearingType: initialData.hearingType || 'first',
         notes: initialData.notes || '',
       })
-    } else {
-      setFormData({
-        title: '',
-        clientName: '',
-        fileNumber: '',
-        courtName: '',
-        hearingDate: '',
-        hearingTime: '',
-        location: '',
-        hearingType: 'first',
-        notes: '',
-      })
     }
   }, [editHearing, initialData])
 
@@ -93,116 +80,131 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
   }
 
   const FormContent = () => (
-    <CardContent className="p-4 sm:p-6">
+    <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl sm:text-2xl font-bold">
-          {editHearing ? 'Duruşma Düzenle' : 'Yeni Duruşma Ekle'}
-        </h2>
+        <div>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
+            {editHearing ? 'Duruşma Düzenle' : 'Yeni Duruşma'}
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Duruşma bilgilerini girin
+          </p>
+        </div>
         {isModal && onClose && (
-          <button
-            onClick={onClose}
-            className="w-9 h-9 rounded-xl bg-[hsl(var(--secondary))] hover:bg-[hsl(var(--muted))] flex items-center justify-center transition-colors"
-          >
+          <Button onClick={onClose} variant="ghost" size="icon" className="shrink-0">
             <X className="w-5 h-5" />
-          </button>
+          </Button>
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Title */}
         <div>
-          <Label htmlFor="hearingTitle">Dava Başlığı *</Label>
+          <label className="block text-sm font-medium mb-2">
+            Dava Başlığı <span className="text-red-500">*</span>
+          </label>
           <Input 
-            id="hearingTitle" 
             placeholder="Dava başlığı girin" 
             required 
             value={formData.title}
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            className="mt-2"
+            className="h-12"
           />
         </div>
 
+        {/* Client & File Number */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="hearingClient">Müvekkil Adı *</Label>
+            <label className="block text-sm font-medium mb-2">
+              <User className="w-4 h-4 inline mr-1" />
+              Müvekkil Adı <span className="text-red-500">*</span>
+            </label>
             <Input 
-              id="hearingClient" 
               placeholder="Müvekkil adı" 
               required 
               value={formData.clientName}
               onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
-              className="mt-2"
             />
           </div>
           <div>
-            <Label htmlFor="hearingFileNumber">Dosya/Esas No *</Label>
+            <label className="block text-sm font-medium mb-2">
+              <FileText className="w-4 h-4 inline mr-1" />
+              Dosya/Esas No <span className="text-red-500">*</span>
+            </label>
             <Input 
-              id="hearingFileNumber" 
-              placeholder="Dosya numarası" 
+              placeholder="2024/123" 
               required 
               value={formData.fileNumber}
               onChange={(e) => setFormData({ ...formData, fileNumber: e.target.value })}
-              className="mt-2"
             />
           </div>
         </div>
 
+        {/* Court Name */}
         <div>
-          <Label htmlFor="courtName">Mahkeme *</Label>
+          <label className="block text-sm font-medium mb-2">
+            <Scale className="w-4 h-4 inline mr-1" />
+            Mahkeme <span className="text-red-500">*</span>
+          </label>
           <Input 
-            id="courtName" 
             placeholder="Mahkeme adı (örn: Ankara 5. Aile Mahkemesi)" 
             required 
             value={formData.courtName}
             onChange={(e) => setFormData({ ...formData, courtName: e.target.value })}
-            className="mt-2"
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        {/* Date & Time */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="hearingDate">Duruşma Tarihi *</Label>
+            <label className="block text-sm font-medium mb-2">
+              <CalendarIcon className="w-4 h-4 inline mr-1" />
+              Duruşma Tarihi <span className="text-red-500">*</span>
+            </label>
             <Input 
-              id="hearingDate" 
               type="date" 
               required 
               value={formData.hearingDate}
               onChange={(e) => setFormData({ ...formData, hearingDate: e.target.value })}
-              className="mt-2"
+              className="h-12"
             />
           </div>
-
           <div>
-            <Label htmlFor="hearingTime">Duruşma Saati *</Label>
+            <label className="block text-sm font-medium mb-2">
+              <Clock className="w-4 h-4 inline mr-1" />
+              Duruşma Saati <span className="text-red-500">*</span>
+            </label>
             <Input 
-              id="hearingTime" 
               type="time" 
               required 
               value={formData.hearingTime}
               onChange={(e) => setFormData({ ...formData, hearingTime: e.target.value })}
-              className="mt-2"
+              className="h-12"
             />
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        {/* Location & Type */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="hearingLocation">Salon</Label>
+            <label className="block text-sm font-medium mb-2">
+              <MapPin className="w-4 h-4 inline mr-1" />
+              Salon
+            </label>
             <Input 
-              id="hearingLocation" 
               placeholder="Salon no (opsiyonel)" 
-              value={formData.location}
+              value={formData.location || ''}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              className="mt-2"
             />
           </div>
-
           <div>
-            <Label htmlFor="hearingType">Duruşma Türü</Label>
+            <label className="block text-sm font-medium mb-2">
+              Duruşma Türü
+            </label>
             <select
-              id="hearingType"
               value={formData.hearingType}
               onChange={(e) => setFormData({ ...formData, hearingType: e.target.value })}
-              className="flex h-10 w-full rounded-2xl border border-input bg-background px-3 py-2 text-sm mt-2"
+              className="flex h-12 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <option value="first">İlk Duruşma</option>
               <option value="continuation">Ara Duruşma</option>
@@ -213,33 +215,37 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
           </div>
         </div>
 
+        {/* Notes */}
         <div>
-          <Label htmlFor="hearingNotes">Notlar</Label>
+          <label className="block text-sm font-medium mb-2">Notlar</label>
           <textarea
-            id="hearingNotes"
             placeholder="Duruşma ile ilgili notlar (opsiyonel)"
-            value={formData.notes}
+            value={formData.notes || ''}
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-            className="flex min-h-[80px] w-full rounded-2xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring mt-2"
+            className="flex min-h-[100px] w-full rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
           />
         </div>
 
-        {isModal ? (
-          <div className="flex gap-3 pt-4">
-            <Button type="button" onClick={handleCancel} variant="outline" className="flex-1">
-              İptal
-            </Button>
-            <Button type="submit" className="flex-1">
-              {editHearing || initialData ? 'Güncelle' : 'Duruşma Ekle'}
-            </Button>
-          </div>
-        ) : (
-          <Button type="submit" className="w-full">
-            Duruşma Ekle
+        {/* Actions */}
+        <div className="flex gap-3 pt-4 border-t">
+          <Button 
+            type="button" 
+            onClick={handleCancel} 
+            variant="outline" 
+            className="flex-1"
+          >
+            İptal
           </Button>
-        )}
+          <Button 
+            type="submit" 
+            className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            {editHearing || initialData ? 'Güncelle' : 'Duruşma Ekle'}
+          </Button>
+        </div>
       </form>
-    </CardContent>
+    </div>
   )
 
   if (isModal) {
@@ -254,16 +260,18 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
               onClick={onClose}
               className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
             />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[calc(100%-2rem)] sm:w-[480px] max-h-[calc(100vh-2rem)] sm:max-h-[90vh] z-50"
-            >
-              <Card className="h-full overflow-y-auto custom-scrollbar">
-                <FormContent />
-              </Card>
-            </motion.div>
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="w-full max-w-lg max-h-[90vh] overflow-y-auto"
+              >
+                <Card>
+                  <FormContent />
+                </Card>
+              </motion.div>
+            </div>
           </>
         )}
       </AnimatePresence>
@@ -275,11 +283,13 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
 
 export function FloatingAddHearingButton({ onClick }: { onClick: () => void }) {
   return (
-    <button
+    <motion.button
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.95 }}
       onClick={onClick}
-      className="fixed bottom-36 sm:bottom-6 right-4 sm:right-6 w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-110 transition-all z-40 flex items-center justify-center"
+      className="fixed bottom-24 lg:bottom-6 right-4 lg:right-6 w-14 h-14 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 z-40 flex items-center justify-center"
     >
       <Plus className="w-6 h-6" />
-    </button>
+    </motion.button>
   )
 }
