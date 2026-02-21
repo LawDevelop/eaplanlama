@@ -14,6 +14,28 @@ export async function POST(request: NextRequest) {
 
       let responseText = ''
 
+      // Mock hearing data
+      const mockHearings = [
+        { id: '1', title: 'Boşanma Davası', clientName: 'Ahmet Yılmaz', courtName: 'Aile Mahkemesi', hearingDate: '2025-01-22', time: '10:00', location: 'Salon 3' },
+        { id: '2', title: 'İş Davası', clientName: 'Zeynep Kara', courtName: 'İş Mahkemesi', hearingDate: '2025-01-24', time: '14:00', location: 'Salon 1' },
+        { id: '3', title: 'Tazminat Davası', clientName: 'Mehmet Demir', courtName: 'Asliye Hukuk', hearingDate: '2025-01-27', time: '11:00', location: 'Salon 2' },
+        { id: '4', title: 'Kira Tahliye', clientName: 'Ayşe Kaya', courtName: 'İcra Hukuk', hearingDate: '2025-01-29', time: '09:30', location: 'Salon 4' },
+        { id: '5', title: 'Evlilik Öncesi Mal Rehin', clientName: 'Ali Öz', courtName: 'Sulh Hukuk', hearingDate: '2025-01-30', time: '15:00', location: 'Salon 2' },
+      ]
+
+      // Mock task data
+      const mockTasks = [
+        { id: '1', title: 'Dilekçe hazırla', clientName: 'Mehmet Demir', priority: 'high', completed: false },
+        { id: '2', title: 'Belge toplama', clientName: 'Ayşe Kaya', priority: 'medium', completed: false },
+        { id: '3', title: 'Mahkeme dosyası inceleme', clientName: 'Ali Yılmaz', priority: 'critical', completed: false },
+        { id: '4', title: 'Müvekkil görüşmesi', clientName: 'Fatma Öz', priority: 'low', completed: true },
+      ]
+
+      // Mock finance data
+      const monthlyIncome = 125000
+      const monthlyExpense = 45000
+      const balance = monthlyIncome - monthlyExpense
+
       // Handle commands
       switch (text.toLowerCase()) {
         case '/start':
@@ -21,15 +43,32 @@ export async function POST(request: NextRequest) {
           break
 
         case '/bugun':
-          responseText = `📅 *Bugünkü Görevler*\n\nℹ️ Bu özellik için Supabase entegrasyonu gereklidir.`
+          const todayTasks = mockTasks.filter(t => !t.completed)
+          if (todayTasks.length === 0) {
+            responseText = `✅ *Bugün yapılacak görev yok!*`
+          } else {
+            responseText = `📅 *Bugünkü Görevler* (${todayTasks.length} adet)\n\n`
+            todayTasks.forEach((task, i) => {
+              const priorityEmoji = task.priority === 'critical' ? '🔴' : task.priority === 'high' ? '🟠' : task.priority === 'medium' ? '🟡' : '🔵'
+              responseText += `${priorityEmoji} ${task.title}\n   👤 ${task.clientName}\n\n`
+            })
+          }
           break
 
         case '/durusmalar':
-          responseText = `⚖️ *Yaklaşan Duruşmalar*\n\nℹ️ Bu özellik için Supabase entegrasyonu gereklidir.`
+          const upcomingHearings = mockHearings.slice(0, 5)
+          responseText = `⚖️ *Yaklaşan Duruşmalar* (${upcomingHearings.length} adet)\n\n`
+          upcomingHearings.forEach((hearing) => {
+            const date = new Date(hearing.hearingDate).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' })
+            responseText += `📅 ${date} - ${hearing.time}\n⚖️ ${hearing.title}\n👤 ${hearing.clientName}\n📍 ${hearing.courtName} - ${hearing.location}\n\n`
+          })
           break
 
         case '/gelirler':
-          responseText = `💰 *Aylık Gelir Özeti*\n\nℹ️ Bu özellik için Supabase entegrasyonu gereklidir.`
+          responseText = `💰 *Aylık Gelir Özeti*\n\n`
+          responseText += `📈 Toplam Gelir: ${monthlyIncome.toLocaleString('tr-TR')} ₺\n`
+          responseText += `📉 Toplam Gider: ${monthlyExpense.toLocaleString('tr-TR')} ₺\n`
+          responseText += `💵 *Net Bakiye: ${balance.toLocaleString('tr-TR')} ₺*`
           break
 
         case '/yardim':
