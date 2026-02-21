@@ -387,7 +387,7 @@ export function HearingsView() {
 
             {/* Hearings List */}
             <div className="space-y-3">
-              {mockHearings.map((hearing, index) => {
+              {hearings.map((hearing, index) => {
                 const date = new Date(hearing.hearingDate)
                 const config = statusConfig[hearing.status]
 
@@ -497,9 +497,9 @@ export function HearingsView() {
             </div>
           </>
         ) : view === 'calendar' ? (
-          <HearingCalendar hearings={mockHearings} />
+          <HearingCalendar hearings={hearings} />
         ) : view === 'timeline' ? (
-          <HearingTimeline hearings={mockHearings} />
+          <HearingTimeline hearings={hearings} />
         ) : (
           /* Çöp Kutusu */
           <div className="space-y-4">
