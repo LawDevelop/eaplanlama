@@ -41,11 +41,16 @@
 
   * {
     @apply border-[hsl(var(--border))];
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
     @apply bg-[hsl(var(--background))] text-[hsl(var(--foreground))] antialiased;
     font-feature-settings: 'cv11', 'ss01';
+    /* Fix mobile viewport */
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -55,6 +60,36 @@
   /* Smooth scrolling */
   html {
     scroll-behavior: smooth;
+  }
+
+  /* Safe areas for notched phones */
+  @supports (padding: max(0px)) {
+    body {
+      padding-left: max(0px, env(safe-area-inset-left));
+      padding-right: max(0px, env(safe-area-inset-right));
+    }
+  }
+
+  /* Fix text size adjustment on mobile */
+  body {
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* Better touch targets */
+  button, a, input, select, textarea {
+    touch-action: manipulation;
+    min-height: 44px;
+  }
+
+  button, a {
+    min-height: auto;
+  }
+
+  /* Input specific sizes */
+  input, select, textarea {
+    min-height: 44px;
   }
 }
 
@@ -240,5 +275,83 @@
 
   .animate-pulse-glow {
     animation: pulse-glow 3s ease-in-out infinite;
+  }
+
+  /* Glassmorphism */
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-xl border border-white/20 rounded-3xl shadow-lg;
+  }
+
+  /* Modern gradient borders */
+  .gradient-border {
+    position: relative;
+    background: hsl(var(--card));
+    border-radius: 1.5rem;
+  }
+
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 1.5rem;
+    padding: 1px;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+/* Mobile-first responsive fixes */
+@media screen and (max-width: 768px) {
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  /* Prevent horizontal overflow */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Smaller text on mobile */
+  h1 {
+    font-size: 1.5rem !important;
+  }
+
+  h2 {
+    font-size: 1.25rem !important;
+  }
+
+  /* Better card spacing on mobile */
+  .elite-card {
+    border-radius: 1.25rem;
+  }
+
+  /* Fix stats cards on mobile */
+  .grid-cols-2 {
+    gap: 0.5rem;
+  }
+
+  /* Better input sizes on mobile */
+  .elite-input {
+    padding: 0.75rem 1rem;
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+
+  /* Fix bottom navigation overlap */
+  main {
+    padding-bottom: 5rem;
+  }
+}
+
+/* Tablet responsive */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .container {
+    max-width: 100% !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
   }
 }
