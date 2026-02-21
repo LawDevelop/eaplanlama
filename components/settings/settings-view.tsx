@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { 
   Bell, Mail, MessageSquare, Clock, Shield, User, 
@@ -57,32 +57,10 @@ export function SettingsView() {
           {/* Content */}
           <div className="lg:col-span-3">
             <div className="elite-card p-6 md:p-8">
-              {activeTab === 'notifications' && <NotificationsTab />}
-              {activeTab === 'telegram' && <TelegramTab />}
-              {activeTab === 'email' && <EmailTab />}
-              {activeTab === 'account' && <AccountTab />}
-
-              {/* Save Button */}
-              <div className="mt-8 pt-6 border-t border-[hsl(var(--card-border))]">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleSave}
-                  className="elite-btn-primary w-full md:w-auto px-8"
-                >
-                  {saved ? (
-                    <>
-                      <Check className="w-5 h-5 inline mr-2" />
-                      Kaydedildi!
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-5 h-5 inline mr-2" />
-                      Değişiklikleri Kaydet
-                    </>
-                  )}
-                </motion.button>
-              </div>
+              {activeTab === 'notifications' && <NotificationsTab onSave={handleSave} saved={saved} />}
+              {activeTab === 'telegram' && <TelegramTab onSave={handleSave} saved={saved} />}
+              {activeTab === 'email' && <EmailTab onSave={handleSave} saved={saved} />}
+              {activeTab === 'account' && <AccountTab onSave={handleSave} saved={saved} />}
             </div>
           </div>
         </div>
@@ -91,7 +69,12 @@ export function SettingsView() {
   )
 }
 
-function NotificationsTab() {
+interface TabProps {
+  onSave: () => void
+  saved: boolean
+}
+
+function NotificationsTab({ onSave, saved }: TabProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -153,11 +136,55 @@ function NotificationsTab() {
           />
         </div>
       </div>
+
+      {/* Save Button */}
+      <div className="mt-8 pt-6 border-t border-[hsl(var(--card-border))]">
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={onSave}
+          className="elite-btn-primary w-full md:w-auto px-8"
+        >
+          {saved ? (
+            <>
+              <Check className="w-5 h-5 inline mr-2" />
+              Kaydedildi!
+            </>
+          ) : (
+            <>
+              <Save className="w-5 h-5 inline mr-2" />
+              Değişiklikleri Kaydet
+            </>
+          )}
+        </motion.button>
+      </div>
     </div>
   )
 }
 
-function TelegramTab() {
+function TelegramTab({ onSave, saved }: TabProps) {
+  const [botToken, setBotToken] = useState('')
+  const [chatId, setChatId] = useState('')
+  const [enabled, setEnabled] = useState(false)
+
+  // Load saved settings on mount
+  useEffect(() => {
+    const savedToken = localStorage.getItem('telegram_bot_token')
+    const savedChatId = localStorage.getItem('telegram_chat_id')
+    const savedEnabled = localStorage.getItem('telegram_enabled')
+    
+    if (savedToken) setBotToken(savedToken)
+    if (savedChatId) setChatId(savedChatId)
+    if (savedEnabled) setEnabled(savedEnabled === 'true')
+  }, [])
+
+  const handleSave = () => {
+    localStorage.setItem('telegram_bot_token', botToken)
+    localStorage.setItem('telegram_chat_id', chatId)
+    localStorage.setItem('telegram_enabled', enabled.toString())
+    onSave()
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -189,6 +216,8 @@ function TelegramTab() {
           <input
             type="text"
             placeholder="1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
+            value={botToken}
+            onChange={(e) => setBotToken(e.target.value)}
             className="elite-input"
           />
           <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">
@@ -201,6 +230,8 @@ function TelegramTab() {
           <input
             type="text"
             placeholder="123456789"
+            value={chatId}
+            onChange={(e) => setChatId(e.target.value)}
             className="elite-input"
           />
           <p className="text-sm text-[hsl(var(--muted-foreground))] mt-1">
@@ -212,7 +243,8 @@ function TelegramTab() {
           <input
             type="checkbox"
             id="telegram-enabled"
-            defaultChecked
+            checked={enabled}
+            onChange={(e) => setEnabled(e.target.checked)}
             className="w-5 h-5 rounded accent-[hsl(var(--primary))]"
           />
           <label htmlFor="telegram-enabled" className="font-medium cursor-pointer">
@@ -234,11 +266,33 @@ function TelegramTab() {
           </div>
         </div>
       </div>
+
+      {/* Save Button */}
+      <div className="mt-8 pt-6 border-t border-[hsl(var(--card-border))]">
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleSave}
+          className="elite-btn-primary w-full md:w-auto px-8"
+        >
+          {saved ? (
+            <>
+              <Check className="w-5 h-5 inline mr-2" />
+              Kaydedildi!
+            </>
+          ) : (
+            <>
+              <Save className="w-5 h-5 inline mr-2" />
+              Değişiklikleri Kaydet
+            </>
+          )}
+        </motion.button>
+      </div>
     </div>
   )
 }
 
-function EmailTab() {
+function EmailTab({ onSave, saved }: TabProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -319,11 +373,33 @@ function EmailTab() {
           </label>
         </div>
       </div>
+
+      {/* Save Button */}
+      <div className="mt-8 pt-6 border-t border-[hsl(var(--card-border))]">
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={onSave}
+          className="elite-btn-primary w-full md:w-auto px-8"
+        >
+          {saved ? (
+            <>
+              <Check className="w-5 h-5 inline mr-2" />
+              Kaydedildi!
+            </>
+          ) : (
+            <>
+              <Save className="w-5 h-5 inline mr-2" />
+              Değişiklikleri Kaydet
+            </>
+          )}
+        </motion.button>
+      </div>
     </div>
   )
 }
 
-function AccountTab() {
+function AccountTab({ onSave, saved }: TabProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -387,6 +463,28 @@ function AccountTab() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Save Button */}
+      <div className="mt-8 pt-6 border-t border-[hsl(var(--card-border))]">
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={onSave}
+          className="elite-btn-primary w-full md:w-auto px-8"
+        >
+          {saved ? (
+            <>
+              <Check className="w-5 h-5 inline mr-2" />
+              Kaydedildi!
+            </>
+          ) : (
+            <>
+              <Save className="w-5 h-5 inline mr-2" />
+              Değişiklikleri Kaydet
+            </>
+          )}
+        </motion.button>
       </div>
     </div>
   )
