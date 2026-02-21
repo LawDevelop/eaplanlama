@@ -10,7 +10,21 @@ import { HearingTemplatesModal } from './hearing-templates-modal'
 import { SavedFiltersModal } from './saved-filters-modal'
 import { AddHearingForm } from '@/components/forms/add-hearing-form'
 
-const mockHearings = [
+type HearingStatus = 'scheduled' | 'completed' | 'postponed' | 'cancelled'
+
+interface Hearing {
+  id: string
+  title: string
+  clientName: string
+  fileNumber: string
+  courtName: string
+  hearingDate: string
+  location: string
+  status: HearingStatus
+  preparationProgress: number
+}
+
+const initialHearings: Hearing[] = [
   {
     id: '1',
     title: 'Boşanma Davası',
@@ -30,8 +44,8 @@ const mockHearings = [
     courtName: 'İstanbul 12. İş Mahkemesi',
     hearingDate: '2024-02-28T14:00:00',
     location: 'Salon 1',
-    status: 'completed' as const,
-    preparationProgress: 100,
+    status: 'scheduled' as const,
+    preparationProgress: 45,
   },
   {
     id: '3',
@@ -41,12 +55,13 @@ const mockHearings = [
     courtName: 'Ankara 2. Asliye Hukuk Mahkemesi',
     hearingDate: '2024-03-05T11:00:00',
     location: 'Salon 2',
-    status: 'postponed' as const,
+    status: 'scheduled' as const,
     preparationProgress: 30,
   },
 ]
 
 export function HearingsView() {
+  const [hearings, setHearings] = useState(initialHearings)
   const [view, setView] = useState<'list' | 'calendar' | 'timeline' | 'trash'>('list')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedHearings, setSelectedHearings] = useState<string[]>([])
@@ -60,6 +75,7 @@ export function HearingsView() {
   const [showTemplatesModal, setShowTemplatesModal] = useState(false)
   const [showFiltersModal, setShowFiltersModal] = useState(false)
   const [showAddForm, setShowAddForm] = useState(false)
+  const [editingHearing, setEditingHearing] = useState<any>(null)
 
   const statusConfig = {
     scheduled: { label: 'Planlandı', class: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20' },
@@ -76,8 +92,24 @@ export function HearingsView() {
     )
   }
 
+  const handleHearingComplete = (hearingId: string) => {
+    setHearings(prev => prev.map(h =>
+      h.id === hearingId
+        ? { ...h, status: 'completed', preparationProgress: 100 } as Hearing
+        : h
+    ))
+  }
+
+  const handleHearingEdit = (hearingId: string) => {
+    const hearing = hearings.find(h => h.id === hearingId)
+    if (hearing) {
+      setEditingHearing(hearing)
+      setShowAddForm(true)
+    }
+  }
+
   const handleHearingDelete = (hearingId: string) => {
-    const hearing = mockHearings.find(h => h.id === hearingId)
+    const hearing = hearings.find(h => h.id === hearingId)
     if (hearing) {
       const deletedHearing = {
         ...hearing,
@@ -85,37 +117,56 @@ export function HearingsView() {
         permanentDeleteAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
       }
       setDeletedHearings(prev => [...prev, deletedHearing])
-      console.log('Moving to trash:', hearingId)
+      setHearings(prev => prev.filter(h => h.id !== hearingId))
     }
   }
 
   const handleRestoreHearing = (hearingId: string) => {
-    setDeletedHearings(prev => prev.filter(h => h.id !== hearingId))
-    console.log('Restoring hearing:', hearingId)
+    const hearing = deletedHearings.find(h => h.id === hearingId)
+    if (hearing) {
+      setHearings(prev => [...prev, hearing])
+      setDeletedHearings(prev => prev.filter(h => h.id !== hearingId))
+    }
   }
 
   const handlePermanentDelete = (hearingId: string) => {
     if (confirm('Bu duruşma kalıcı olarak silinecek. Emin misiniz?')) {
       setDeletedHearings(prev => prev.filter(h => h.id !== hearingId))
-      console.log('Permanently deleting hearing:', hearingId)
     }
   }
 
   const bulkComplete = () => {
-    console.log('Completing hearings:', selectedHearings)
+    setHearings(prev => prev.map(h =>
+      selectedHearings.includes(h.id)
+        ? { ...h, status: 'completed', preparationProgress: 100 } as Hearing
+        : h
+    ))
     setSelectedHearings([])
     setBulkMode(false)
   }
 
   const bulkPostpone = () => {
-    console.log('Postponing hearings:', selectedHearings)
+    setHearings(prev => prev.map(h =>
+      selectedHearings.includes(h.id)
+        ? { ...h, status: 'postponed' } as Hearing
+        : h
+    ))
     setSelectedHearings([])
     setBulkMode(false)
   }
 
   const bulkDelete = () => {
     if (confirm(`${selectedHearings.length} duruşmayı silmek istediğinizden emin misiniz?`)) {
-      console.log('Deleting hearings:', selectedHearings)
+      const toDelete = hearings.filter(h => selectedHearings.includes(h.id))
+      toDelete.forEach(hearing => {
+        const deletedHearing = {
+          ...hearing,
+          deletedAt: new Date().toISOString(),
+          permanentDeleteAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+        }
+        setDeletedHearings(prev => [...prev, deletedHearing])
+      })
+      setHearings(prev => prev.filter(h => !selectedHearings.includes(h.id)))
       setSelectedHearings([])
       setBulkMode(false)
     }
@@ -405,8 +456,7 @@ export function HearingsView() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
-                                // TODO: Toggle complete
-                                console.log('Complete hearing:', hearing.id)
+                                handleHearingComplete(hearing.id)
                               }}
                               className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
                                 hearing.status === 'completed'
@@ -420,8 +470,7 @@ export function HearingsView() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
-                                // TODO: Open edit modal
-                                console.log('Edit hearing:', hearing.id)
+                                handleHearingEdit(hearing.id)
                               }}
                               className="w-9 h-9 rounded-xl flex items-center justify-center bg-gray-100 text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-all"
                               title="Düzenle"
@@ -526,7 +575,14 @@ export function HearingsView() {
         <HearingStatsModal isOpen={showStatsModal} onClose={() => setShowStatsModal(false)} />
         <HearingTemplatesModal isOpen={showTemplatesModal} onClose={() => setShowTemplatesModal(false)} />
         <SavedFiltersModal isOpen={showFiltersModal} onClose={() => setShowFiltersModal(false)} />
-        <AddHearingForm isOpen={showAddForm} onClose={() => setShowAddForm(false)} />
+        <AddHearingForm
+          isOpen={showAddForm}
+          editHearing={editingHearing}
+          onClose={() => {
+            setShowAddForm(false)
+            setEditingHearing(null)
+          }}
+        />
       </div>
     </div>
   )
