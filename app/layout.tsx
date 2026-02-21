@@ -2,9 +2,7 @@ import type { Metadata } from 'next'
 import { Poppins } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/providers/theme-provider'
-import { Header } from '@/components/layout/header'
-import { BottomNav } from '@/components/layout/bottom-nav'
-import { DesktopSidebar } from '@/components/layout/desktop-sidebar'
+import { AppShell } from '@/components/layout/app-shell'
 
 const poppins = Poppins({ 
   subsets: ['latin'],
@@ -31,24 +29,9 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <div className="min-h-screen flex">
-            {/* Desktop Sidebar - Hidden on mobile */}
-            <DesktopSidebar />
-            
-            {/* Main Content Area */}
-            <div className="flex-1 flex flex-col lg:ml-64">
-              {/* Mobile Header - Hidden on desktop */}
-              <Header />
-              
-              {/* Main Content */}
-              <main className="flex-1 pb-20 lg:pb-6">
-                {children}
-              </main>
-              
-              {/* Mobile Bottom Navigation - Hidden on desktop */}
-              <BottomNav />
-            </div>
-          </div>
+          <AppShell>
+            {children}
+          </AppShell>
         </ThemeProvider>
       </body>
     </html>

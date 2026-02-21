@@ -1,20 +1,36 @@
 'use client'
 
+import { useState } from 'react'
 import { GlobalSearch } from '@/components/search/global-search'
-import { TodayHearings } from './today-hearings'
-import { WeeklyTasks } from './weekly-tasks'
+import { WeekHearings } from './week-hearings'
+import { WeekTasks } from './week-tasks'
 import { FinancialSummary } from './financial-summary'
 import { QuickStats } from './quick-stats'
+import { AddHearingForm } from '@/components/forms/add-hearing-form'
+import { AddTaskModal } from '@/components/modals/add-task-modal'
 import { motion } from 'framer-motion'
-import { Scale, Users, FileText, TrendingUp, Calendar, CheckCircle2 } from 'lucide-react'
+import { Scale, Users, FileText, TrendingUp, Calendar, CheckCircle2, Upload, UserPlus } from 'lucide-react'
 
 export function DashboardView() {
+  const [hearingsView, setHearingsView] = useState<'today' | 'week'>('week')
+  const [tasksView, setTasksView] = useState<'today' | 'week'>('week')
+  const [showAddHearing, setShowAddHearing] = useState(false)
+  const [showAddTask, setShowAddTask] = useState(false)
+
   // Get greeting based on time
   const hour = new Date().getHours()
   let greeting = 'İyi Geceler'
   if (hour >= 6 && hour < 12) greeting = 'Günaydın'
   else if (hour >= 12 && hour < 18) greeting = 'İyi Günler'
   else if (hour >= 18 && hour < 22) greeting = 'İyi Akşamlar'
+
+  const toggleHearingsView = () => {
+    setHearingsView(prev => prev === 'today' ? 'week' : 'today')
+  }
+
+  const toggleTasksView = () => {
+    setTasksView(prev => prev === 'today' ? 'week' : 'today')
+  }
 
   return (
     <div className="min-h-screen pb-24 lg:pb-0">
@@ -113,27 +129,32 @@ export function DashboardView() {
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column */}
+          {/* Left Column - 2/3 width */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Hearings */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
+              className="elite-card p-6"
             >
-              <TodayHearings />
+              <WeekHearings view={hearingsView} onToggleView={toggleHearingsView} />
             </motion.div>
             
+            {/* Tasks */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
+              className="elite-card p-6"
             >
-              <WeeklyTasks />
+              <WeekTasks view={tasksView} onToggleView={toggleTasksView} />
             </motion.div>
           </div>
 
-          {/* Right Column */}
+          {/* Right Column - 1/3 width */}
           <div className="space-y-6">
+            {/* Financial Summary */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -149,22 +170,33 @@ export function DashboardView() {
               transition={{ delay: 0.6 }}
               className="elite-card p-6"
             >
-              <h3 className="text-lg font-semibold mb-4">Hızlı İşlemler</h3>
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4 text-white" />
+                </div>
+                Hızlı İşlemler
+              </h3>
               <div className="grid grid-cols-2 gap-3">
-                <button className="p-4 rounded-2xl bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all group">
+                <button 
+                  onClick={() => setShowAddHearing(true)}
+                  className="p-4 rounded-2xl bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all group"
+                >
                   <Calendar className="w-6 h-6 text-blue-600 mb-2 group-hover:scale-110 transition-transform" />
                   <p className="text-sm font-medium text-gray-700">Duruşma Ekle</p>
                 </button>
-                <button className="p-4 rounded-2xl bg-green-50 hover:bg-green-100 border border-green-200 transition-all group">
+                <button 
+                  onClick={() => setShowAddTask(true)}
+                  className="p-4 rounded-2xl bg-green-50 hover:bg-green-100 border border-green-200 transition-all group"
+                >
                   <CheckCircle2 className="w-6 h-6 text-green-600 mb-2 group-hover:scale-110 transition-transform" />
                   <p className="text-sm font-medium text-gray-700">Görev Ekle</p>
                 </button>
                 <button className="p-4 rounded-2xl bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-all group">
-                  <FileText className="w-6 h-6 text-purple-600 mb-2 group-hover:scale-110 transition-transform" />
+                  <Upload className="w-6 h-6 text-purple-600 mb-2 group-hover:scale-110 transition-transform" />
                   <p className="text-sm font-medium text-gray-700">Belge Yükle</p>
                 </button>
                 <button className="p-4 rounded-2xl bg-orange-50 hover:bg-orange-100 border border-orange-200 transition-all group">
-                  <Users className="w-6 h-6 text-orange-600 mb-2 group-hover:scale-110 transition-transform" />
+                  <UserPlus className="w-6 h-6 text-orange-600 mb-2 group-hover:scale-110 transition-transform" />
                   <p className="text-sm font-medium text-gray-700">Müvekkil Ekle</p>
                 </button>
               </div>
@@ -200,6 +232,10 @@ export function DashboardView() {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      <AddHearingForm isOpen={showAddHearing} onClose={() => setShowAddHearing(false)} />
+      <AddTaskModal isOpen={showAddTask} onClose={() => setShowAddTask(false)} />
     </div>
   )
 }
