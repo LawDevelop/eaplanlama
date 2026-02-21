@@ -63,17 +63,24 @@ export async function updateSession(request: NextRequest) {
 
     const { data: { user } } = await supabase.auth.getUser()
 
-    // Protected routes - redirect to login if not authenticated
-    const protectedPaths = ['/', '/tasks', '/hearings', '/calendar', '/clients', '/documents', '/finance', '/settings', '/add']
-    const isProtectedPath = protectedPaths.some(path => request.nextUrl.pathname.startsWith(path))
-    const isAuthPage = request.nextUrl.pathname.startsWith('/login')
+    const pathname = request.nextUrl.pathname
 
-    if (isProtectedPath && !user) {
-      return NextResponse.redirect(new URL('/login', request.url))
+    // Public paths that don't require authentication
+    const publicPaths = ['/login', '/auth/callback']
+    const isPublicPath = publicPaths.some(path => pathname.startsWith(path))
+
+    // If it's a public path, allow access
+    if (isPublicPath) {
+      // If user is logged in and trying to access login, redirect to dashboard
+      if (pathname.startsWith('/login') && user) {
+        return NextResponse.redirect(new URL('/', request.url))
+      }
+      return response
     }
 
-    if (isAuthPage && user) {
-      return NextResponse.redirect(new URL('/', request.url))
+    // All other paths require authentication
+    if (!user) {
+      return NextResponse.redirect(new URL('/login', request.url))
     }
   } catch (error) {
     // If there's any error with Supabase, allow access for development
