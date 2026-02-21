@@ -14,17 +14,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-[hsl(var(--background))]">
       {/* Desktop Sidebar - Hidden on mobile */}
       <DesktopSidebar />
       
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col lg:ml-64">
+      <div className="flex-1 flex flex-col lg:ml-[260px] transition-all duration-300">
         {/* Mobile Header - Hidden on desktop */}
         <Header />
         
         {/* Main Content */}
-        <main className="flex-1 pb-20 lg:pb-6">
+        <main className="flex-1 pb-20 lg:pb-6 min-h-screen">
           {children}
         </main>
         

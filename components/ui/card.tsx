@@ -4,17 +4,32 @@ import { cn } from "@/lib/utils"
 
 const Card = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "rounded-3xl border bg-card text-card-foreground shadow-sm",
-      className
-    )}
-    {...props}
-  />
-))
+  React.HTMLAttributes<HTMLDivElement> & {
+    interactive?: boolean
+    glass?: boolean
+    gradient?: boolean
+    gradientFrom?: string
+    gradientTo?: string
+  }
+>(({ className, interactive, glass, gradient, gradientFrom, gradientTo, ...props }, ref) => {
+  const baseClass = glass
+    ? "glass-morphism"
+    : gradient
+    ? `bg-gradient-to-br ${gradientFrom || "from-blue-500"} ${gradientTo || "to-purple-600"} text-white shadow-xl`
+    : "elite-card"
+  
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        baseClass,
+        interactive && "elite-card-interactive cursor-pointer",
+        className
+      )}
+      {...props}
+    />
+  )
+})
 Card.displayName = "Card"
 
 const CardHeader = React.forwardRef<
@@ -36,7 +51,7 @@ const CardTitle = React.forwardRef<
   <h3
     ref={ref}
     className={cn(
-      "text-2xl font-semibold leading-none tracking-tight",
+      "text-xl font-semibold leading-none tracking-tight",
       className
     )}
     {...props}
@@ -50,7 +65,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn("text-sm text-[hsl(var(--muted-foreground))]", className)}
     {...props}
   />
 ))

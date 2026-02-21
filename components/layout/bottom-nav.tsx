@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, ListTodo, Scale, User, DollarSign, Settings } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/', icon: Home, label: 'Ana Sayfa' },
@@ -28,24 +29,42 @@ export function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className="relative flex flex-col items-center justify-center gap-1"
+              className="relative flex flex-col items-center justify-center gap-1 group"
             >
               <motion.div
                 whileTap={{ scale: 0.9 }}
-                className={`flex items-center justify-center transition-colors ${
-                  isActive ? 'text-[hsl(var(--primary))]' : 'text-[hsl(var(--muted-foreground))]'
-                }`}
+                className={cn(
+                  "flex items-center justify-center transition-all duration-200",
+                  isActive 
+                    ? "text-[hsl(var(--primary))]" 
+                    : "text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]"
+                )}
               >
-                <Icon className="w-5 h-5" />
+                <div className={cn(
+                  "relative p-2 rounded-xl transition-all",
+                  isActive && "bg-[hsl(var(--primary))]/10"
+                )}>
+                  <Icon className="w-5 h-5" />
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeBottomTab"
+                      className="absolute inset-0 bg-[hsl(var(--primary))]/10 rounded-xl"
+                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                </div>
               </motion.div>
-              <span className={`text-[10px] font-medium transition-colors ${
-                isActive ? 'text-[hsl(var(--primary))]' : 'text-[hsl(var(--muted-foreground))]'
-              }`}>
+              <span className={cn(
+                "text-[10px] font-medium transition-colors",
+                isActive 
+                  ? "text-[hsl(var(--primary))]" 
+                  : "text-[hsl(var(--muted-foreground))] group-hover:text-[hsl(var(--foreground))]"
+              )}>
                 {item.label}
               </span>
               {isActive && (
                 <motion.div
-                  layoutId="activeBottomTab"
+                  layoutId="activeBottomIndicator"
                   className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 gradient-primary rounded-full"
                   transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                 />
