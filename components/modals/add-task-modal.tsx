@@ -5,11 +5,12 @@ import { X, Plus } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface AddTaskModalProps {
-  isOpen: boolean
+  isOpen?: boolean
   onClose: () => void
+  onAdd?: (taskData: any) => Promise<void> | void
 }
 
-export function AddTaskModal({ isOpen, onClose }: AddTaskModalProps) {
+export function AddTaskModal({ isOpen = true, onClose, onAdd }: AddTaskModalProps) {
   const [formData, setFormData] = useState({
     title: '',
     clientName: '',
@@ -20,10 +21,13 @@ export function AddTaskModal({ isOpen, onClose }: AddTaskModalProps) {
     description: '',
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Supabase'e kaydet
-    console.log('Task data:', formData)
+    if (onAdd) {
+      await onAdd(formData)
+    } else {
+      console.log('Task data:', formData)
+    }
     onClose()
   }
 

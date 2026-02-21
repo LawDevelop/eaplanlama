@@ -7,12 +7,13 @@ import { PomodoroTimer } from './pomodoro-timer'
 import type { Task } from '@/hooks/use-supabase-data'
 
 interface TaskDetailModalProps {
-  isOpen: boolean
+  isOpen?: boolean
   onClose: () => void
   task: Task
+  onSave?: (updates: any) => Promise<void> | void
 }
 
-export function TaskDetailModal({ isOpen, onClose, task }: TaskDetailModalProps) {
+export function TaskDetailModal({ isOpen = true, onClose, task }: TaskDetailModalProps) {
   const [activeTab, setActiveTab] = useState<'details' | 'checklist' | 'notes' | 'attachments' | 'history' | 'pomodoro'>('details')
   const [checklist, setChecklist] = useState([
     { id: '1', title: 'Belgeleri topla', completed: false },
