@@ -17,24 +17,24 @@ export async function POST(request: NextRequest) {
       // Handle commands
       switch (text.toLowerCase()) {
         case '/start':
-          responseText = `👋 Merhaba ${username}!\\n\\nHukuk Bürosu yönetim sistemine hoş geldiniz.\\n\\nKullanılabilir komutlar:\\n/bugun - Bugünkü görevler\\n/durusmalar - Yaklaşan duruşmalar\\n/gelirler - Aylık gelir özeti\\n/yardim - Yardım`
+          responseText = `👋 Merhaba ${username}!\n\nHukuk Bürosu yönetim sistemine hoş geldiniz.\n\nKullanılabilir komutlar:\n/bugun - Bugünkü görevler\n/durusmalar - Yaklaşan duruşmalar\n/gelirler - Aylık gelir özeti\n/yardim - Yardım`
           break
 
         case '/bugun':
-          responseText = `📅 *Bugünkü Görevler*\\n\\nℹ️ Bu özellik için Supabase entegrasyonu gereklidir.`
+          responseText = `📅 *Bugünkü Görevler*\n\nℹ️ Bu özellik için Supabase entegrasyonu gereklidir.`
           break
 
         case '/durusmalar':
-          responseText = `⚖️ *Yaklaşan Duruşmalar*\\n\\nℹ️ Bu özellik için Supabase entegrasyonu gereklidir.`
+          responseText = `⚖️ *Yaklaşan Duruşmalar*\n\nℹ️ Bu özellik için Supabase entegrasyonu gereklidir.`
           break
 
         case '/gelirler':
-          responseText = `💰 *Aylık Gelir Özeti*\\n\\nℹ️ Bu özellik için Supabase entegrasyonu gereklidir.`
+          responseText = `💰 *Aylık Gelir Özeti*\n\nℹ️ Bu özellik için Supabase entegrasyonu gereklidir.`
           break
 
         case '/yardim':
         case '/help':
-          responseText = `📚 *Yardım*\\n\\nKullanılabilir komutlar:\\n/start - Botu başlat\\n/bugun - Bugünkü görevler\\n/durusmalar - Yaklaşan duruşmalar\\n/gelirler - Aylık gelir özeti\\n/yardim - Bu mesaj`
+          responseText = `📚 *Yardım*\n\nKullanılabilir komutlar:\n/start - Botu başlat\n/bugun - Bugünkü görevler\n/durusmalar - Yaklaşan duruşmalar\n/gelirler - Aylık gelir özeti\n/yardim - Bu mesaj`
           break
 
         default:
@@ -43,8 +43,8 @@ export async function POST(request: NextRequest) {
 
       // Send response to Telegram
       if (responseText) {
-        // Get bot token from environment or settings
-        const botToken = process.env.TELEGRAM_BOT_TOKEN
+        // Get bot token from URL query parameter (set during webhook setup) or environment
+        const botToken = request.nextUrl.searchParams.get('token') || process.env.TELEGRAM_BOT_TOKEN
         
         if (!botToken) {
           return NextResponse.json({ error: 'Bot token not configured' }, { status: 500 })
