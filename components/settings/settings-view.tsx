@@ -167,6 +167,8 @@ function TelegramTab({ onSave, saved }: TabProps) {
   const [chatId, setChatId] = useState('')
   const [enabled, setEnabled] = useState(false)
   const [testing, setTesting] = useState(false)
+  const [settingUpWebhook, setSettingUpWebhook] = useState(false)
+  const [webhookStatus, setWebhookStatus] = useState<{success: boolean; message: string; webhookUrl?: string} | null>(null)
   const [testResult, setTestResult] = useState<{success: boolean; message: string} | null>(null)
 
   // Load saved settings on mount
@@ -223,6 +225,47 @@ function TelegramTab({ onSave, saved }: TabProps) {
       })
     } finally {
       setTesting(false)
+    }
+  }
+
+  const handleSetupWebhook = async () => {
+    if (!botToken || !chatId) {
+      setWebhookStatus({ success: false, message: 'Bot Token ve Chat ID gereklidir' })
+      return
+    }
+
+    setSettingUpWebhook(true)
+    setWebhookStatus(null)
+
+    try {
+      const response = await fetch('/api/telegram/setup-webhook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ botToken, chatId })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setWebhookStatus({
+          success: true,
+          message: `Webhook kuruldu! Artık Telegram komutları çalışıyor.`,
+          webhookUrl: data.webhookUrl
+        })
+      } else {
+        setWebhookStatus({
+          success: false,
+          message: data.error || 'Webhook kurulumu başarısız'
+        })
+      }
+    } catch (error) {
+      setWebhookStatus({
+        success: false,
+        message: 'Webhook kurulum hatası. Lütfen tekrar deneyin.'
+      })
+    } finally {
+      setSettingUpWebhook(false)
     }
   }
 
@@ -316,6 +359,42 @@ function TelegramTab({ onSave, saved }: TabProps) {
             <p className="font-medium">{testResult.message}</p>
           </div>
         )}
+
+        {/* Webhook Setup Section */}
+        <div className="pt-4 border-t border-[hsl(var(--card-border))]">
+          <p className="text-sm font-medium mb-3 text-[hsl(var(--muted-foreground))]">
+            Webhook Kurulumu (Komutlar için gerekli)
+          </p>
+          <button
+            onClick={handleSetupWebhook}
+            disabled={settingUpWebhook || !botToken || !chatId}
+            className={`w-full p-4 rounded-2xl font-medium transition-all ${
+              settingUpWebhook
+                ? 'bg-gray-200 text-gray-500 cursor-wait'
+                : 'bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:shadow-lg hover:shadow-green-500/30'
+            } disabled:opacity-50`}
+          >
+            {settingUpWebhook ? 'Webhook Kuruluyor...' : '⚙️ Webhook Kur (/komutlar için)'}
+          </button>
+
+          {/* Webhook Status */}
+          {webhookStatus && (
+            <div className={`mt-3 p-4 rounded-xl ${
+              webhookStatus.success
+                ? 'bg-green-50 border border-green-200 text-green-700'
+                : 'bg-red-50 border border-red-200 text-red-700'
+            }`}>
+              <p className="font-medium">{webhookStatus.message}</p>
+              {webhookStatus.webhookUrl && (
+                <p className="text-xs mt-1 opacity-75">{webhookStatus.webhookUrl}</p>
+              )}
+            </div>
+          )}
+
+          <p className="text-xs text-[hsl(var(--muted-foreground))] mt-2">
+            💡 Webhook kurulumundan sonra Telegram&apos;da /start yazarak test edin
+          </p>
+        </div>
       </div>
 
       <div className="elite-card p-6 bg-[hsl(var(--success))]/10 border-[hsl(var(--success))]/20">

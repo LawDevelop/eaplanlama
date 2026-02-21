@@ -71,18 +71,20 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Webhook setup endpoint
+// Get webhook info
 export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams
-  const botToken = searchParams.get('token')
-  
-  if (!botToken || botToken !== process.env.TELEGRAM_BOT_TOKEN) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  try {
+    const botToken = request.cookies.get('tg_bot_token')?.value || process.env.TELEGRAM_BOT_TOKEN
 
-  // Get webhook info
-  const response = await fetch(`https://api.telegram.org/bot${botToken}/getWebhookInfo`)
-  const data = await response.json()
-  
-  return NextResponse.json(data)
+    if (!botToken) {
+      return NextResponse.json({ error: 'Bot token not configured' }, { status: 400 })
+    }
+
+    const response = await fetch(`https://api.telegram.org/bot${botToken}/getWebhookInfo`)
+    const data = await response.json()
+
+    return NextResponse.json(data)
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to get webhook info' }, { status: 500 })
+  }
 }
