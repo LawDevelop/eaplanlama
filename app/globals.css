@@ -1,0 +1,244 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Professional Law Office Theme */
+    --background: 210 20% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --card-border: 214 32% 91%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 217 91% 35%;
+    --primary-hover: 217 91% 30%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 217 91% 95%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --success: 142 76% 36%;
+    --warning: 38 92% 50%;
+    --danger: 0 84% 60%;
+    --info: 199 89% 48%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 91% 35%;
+    --radius: 1rem;
+    --shadow: 222 47% 11%;
+    --sidebar-bg: 220 27% 14%;
+    --sidebar-hover: 220 24% 20%;
+    --sidebar-active: 217 91% 35%;
+    --sidebar-text: 210 20% 78%;
+    --sidebar-text-active: 0 0% 100%;
+  }
+
+  * {
+    @apply border-[hsl(var(--border))];
+  }
+
+  body {
+    @apply bg-[hsl(var(--background))] text-[hsl(var(--foreground))] antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-[#1e3a8a] font-semibold;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Custom Card */
+  .elite-card {
+    @apply bg-[hsl(var(--card))] border border-[hsl(var(--card-border))] rounded-3xl shadow-sm;
+    @apply hover:shadow-lg transition-all duration-300;
+  }
+
+  /* Custom Button */
+  .elite-btn {
+    @apply px-6 py-3 rounded-2xl font-medium transition-all duration-200;
+    @apply hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  .elite-btn-primary {
+    @apply elite-btn bg-[hsl(var(--primary))] text-white;
+    @apply hover:bg-[hsl(var(--primary-hover))] shadow-lg shadow-blue-500/20;
+  }
+
+  .elite-btn-secondary {
+    @apply elite-btn bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))];
+    @apply hover:bg-[hsl(var(--muted))];
+  }
+
+  /* Custom Input */
+  .elite-input {
+    @apply w-full px-4 py-3 rounded-2xl border border-[hsl(var(--card-border))];
+    @apply bg-[hsl(var(--card))] text-[hsl(var(--foreground))];
+    @apply focus:outline-none focus:ring-2 focus:ring-[hsl(var(--primary))] focus:border-transparent;
+    @apply transition-all duration-200 placeholder:text-[hsl(var(--muted-foreground))];
+  }
+
+  /* Gradient backgrounds */
+  .gradient-primary {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  }
+
+  .gradient-success {
+    background: linear-gradient(135deg, hsl(var(--success)) 0%, hsl(142 76% 50%) 100%);
+  }
+
+  .gradient-warning {
+    background: linear-gradient(135deg, hsl(var(--warning)) 0%, hsl(38 92% 65%) 100%);
+  }
+
+  .gradient-danger {
+    background: linear-gradient(135deg, hsl(var(--danger)) 0%, hsl(0 84% 70%) 100%);
+  }
+
+  /* Glass effect */
+  .glass-effect {
+    @apply backdrop-blur-xl bg-white/80;
+    @apply border border-white/20;
+  }
+
+  /* Sidebar styles */
+  .sidebar {
+    @apply bg-[hsl(var(--sidebar-bg))] text-[hsl(var(--sidebar-text))];
+    @apply hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 lg:w-64 lg:z-50;
+    @apply transition-all duration-300;
+  }
+
+  .sidebar-link {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl mx-3 my-0.5;
+    @apply text-[hsl(var(--sidebar-text))] hover:bg-[hsl(var(--sidebar-hover))];
+    @apply transition-all duration-200 text-sm font-medium;
+  }
+
+  .sidebar-link-active {
+    @apply bg-[hsl(var(--sidebar-active))] text-white;
+    @apply shadow-lg shadow-blue-500/30;
+  }
+
+  /* Login styles */
+  .login-gradient {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #1e40af 100%);
+  }
+
+  .login-card {
+    @apply bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl;
+    @apply border border-white/20;
+  }
+
+  .login-input {
+    @apply w-full px-4 py-3.5 rounded-xl border-2 border-gray-200;
+    @apply bg-gray-50/50 text-gray-900;
+    @apply focus:outline-none focus:ring-0 focus:border-[hsl(var(--primary))];
+    @apply transition-all duration-200 placeholder:text-gray-400;
+    @apply text-sm;
+  }
+
+  .login-btn {
+    @apply w-full py-3.5 rounded-xl font-semibold text-white;
+    @apply bg-gradient-to-r from-[#1e3a8a] to-[#3b82f6];
+    @apply hover:from-[#1e3a8a] hover:to-[#2563eb];
+    @apply shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40;
+    @apply transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98];
+    @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100;
+  }
+}
+
+@layer utilities {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .swipe-action {
+    transition: transform 0.2s ease-out;
+  }
+
+  /* Modal centering fix */
+  .modal-centered {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400;
+  }
+
+  /* Sidebar scrollbar */
+  .sidebar-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .sidebar-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-white/10 rounded-full;
+  }
+
+  /* Text gradients */
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  }
+
+  /* Floating animation */
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-float-delay {
+    animation: float 6s ease-in-out 2s infinite;
+  }
+
+  .animate-float-delay-2 {
+    animation: float 6s ease-in-out 4s infinite;
+  }
+
+  /* Pulse glow */
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+    50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.6); }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+}
