@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus, Search, List, Calendar as CalendarIcon, BarChart3, FileText, CheckSquare, Archive, Clock, Filter, Save, Trash2 } from 'lucide-react'
+import { Plus, Search, List, Calendar as CalendarIcon, BarChart3, FileText, CheckSquare, Archive, Clock, Filter, Save, Trash2, CheckCircle, Edit3, Circle } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { HearingCalendar } from './hearing-calendar'
 import { HearingTimeline } from './hearing-timeline'
@@ -399,6 +399,46 @@ export function HearingsView() {
                           <span className={`px-3 py-1.5 rounded-xl text-xs font-semibold border ${config.class}`}>
                             {config.label}
                           </span>
+                          
+                          {/* Action Buttons */}
+                          <div className="flex items-center gap-2 mt-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                // TODO: Toggle complete
+                                console.log('Complete hearing:', hearing.id)
+                              }}
+                              className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                                hearing.status === 'completed'
+                                  ? 'bg-green-100 text-green-600'
+                                  : 'bg-gray-100 text-gray-400 hover:bg-green-50 hover:text-green-600'
+                              }`}
+                              title="Tamamlandı"
+                            >
+                              <CheckCircle className="w-5 h-5" />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                // TODO: Open edit modal
+                                console.log('Edit hearing:', hearing.id)
+                              }}
+                              className="w-9 h-9 rounded-xl flex items-center justify-center bg-gray-100 text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-all"
+                              title="Düzenle"
+                            >
+                              <Edit3 className="w-5 h-5" />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleHearingDelete(hearing.id)
+                              }}
+                              className="w-9 h-9 rounded-xl flex items-center justify-center bg-gray-100 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-all"
+                              title="Sil"
+                            >
+                              <Trash2 className="w-5 h-5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
