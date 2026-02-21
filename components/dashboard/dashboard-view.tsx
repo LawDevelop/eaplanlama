@@ -2,19 +2,20 @@
 
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  Calendar, 
-  Clock, 
-  TrendingUp, 
-  AlertCircle, 
-  CheckCircle, 
+import {
+  Calendar,
+  Clock,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle,
   Plus,
   ArrowRight,
   Sparkles,
   Users,
   FileText,
   Scale,
-  MoreVertical
+  MoreVertical,
+  DollarSign
 } from 'lucide-react'
 import { useTasks, useHearings, useFinancials } from '@/hooks/use-supabase-data'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
