@@ -166,6 +166,8 @@ function TelegramTab({ onSave, saved }: TabProps) {
   const [botToken, setBotToken] = useState('')
   const [chatId, setChatId] = useState('')
   const [enabled, setEnabled] = useState(false)
+  const [testing, setTesting] = useState(false)
+  const [testResult, setTestResult] = useState<{success: boolean; message: string} | null>(null)
 
   // Load saved settings on mount
   useEffect(() => {
@@ -183,6 +185,45 @@ function TelegramTab({ onSave, saved }: TabProps) {
     localStorage.setItem('telegram_chat_id', chatId)
     localStorage.setItem('telegram_enabled', enabled.toString())
     onSave()
+  }
+
+  const handleTestConnection = async () => {
+    if (!botToken || !chatId) {
+      setTestResult({ success: false, message: 'Bot Token ve Chat ID gereklidir' })
+      return
+    }
+
+    setTesting(true)
+    setTestResult(null)
+
+    try {
+      const response = await fetch('/api/telegram/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ botToken, chatId })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        setTestResult({
+          success: true,
+          message: `Bağlantı başarılı! Bot: ${data.botInfo?.name || 'Bilinmiyor'}`
+        })
+      } else {
+        setTestResult({
+          success: false,
+          message: data.error || 'Bağlantı başarısız'
+        })
+      }
+    } catch (error) {
+      setTestResult({
+        success: false,
+        message: 'Bağlantı hatası. Lütfen tekrar deneyin.'
+      })
+    } finally {
+      setTesting(false)
+    }
   }
 
   return (
@@ -251,6 +292,30 @@ function TelegramTab({ onSave, saved }: TabProps) {
             Telegram bildirimlerini aktif et
           </label>
         </div>
+
+        {/* Test Connection Button */}
+        <button
+          onClick={handleTestConnection}
+          disabled={testing || !botToken || !chatId}
+          className={`w-full p-4 rounded-2xl font-medium transition-all ${
+            testing
+              ? 'bg-gray-200 text-gray-500 cursor-wait'
+              : 'bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:shadow-lg hover:shadow-blue-500/30'
+          } disabled:opacity-50`}
+        >
+          {testing ? 'Bağlantı Test Ediliyor...' : '🔌 Bağlantıyı Test Et'}
+        </button>
+
+        {/* Test Result */}
+        {testResult && (
+          <div className={`p-4 rounded-xl ${
+            testResult.success
+              ? 'bg-green-50 border border-green-200 text-green-700'
+              : 'bg-red-50 border border-red-200 text-red-700'
+          }`}>
+            <p className="font-medium">{testResult.message}</p>
+          </div>
+        )}
       </div>
 
       <div className="elite-card p-6 bg-[hsl(var(--success))]/10 border-[hsl(var(--success))]/20">

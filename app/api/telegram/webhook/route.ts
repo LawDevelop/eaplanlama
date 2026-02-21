@@ -1,132 +1,88 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const message = body.message
+    
+    // Telegram webhook structure
+    if (body.message) {
+      const chatId = body.message.chat.id
+      const text = body.message.text || ''
+      const username = body.message.from.username || body.message.from.first_name || 'Kullanıcı'
 
-    if (!message || !message.text) {
-      return NextResponse.json({ ok: true })
-    }
+      console.log('Telegram message received:', { chatId, text, username })
 
-    const chatId = message.chat.id
-    const text = message.text.trim()
+      let responseText = ''
 
-    let responseText = ''
+      // Handle commands
+      switch (text.toLowerCase()) {
+        case '/start':
+          responseText = `👋 Merhaba ${username}!\\n\\nHukuk Bürosu yönetim sistemine hoş geldiniz.\\n\\nKullanılabilir komutlar:\\n/bugun - Bugünkü görevler\\n/durusmalar - Yaklaşan duruşmalar\\n/gelirler - Aylık gelir özeti\\n/yardim - Yardım`
+          break
 
-    // Handle commands
-    if (text === '/bugun' || text === '/today') {
-      responseText = await getTodayTasks()
-    } else if (text === '/durusmalar' || text === '/hearings') {
-      responseText = await getUpcomingHearings()
-    } else if (text === '/gelirler' || text === '/income') {
-      responseText = await getMonthlyIncome()
-    } else if (text === '/help' || text === '/yardim') {
-      responseText = `
-<b>Kullanılabilir Komutlar:</b>
+        case '/bugun':
+          responseText = `📅 *Bugünkü Görevler*\\n\\nℹ️ Bu özellik için Supabase entegrasyonu gereklidir.`
+          break
 
-/bugun - Bugünkü görevler
-/durusmalar - Yaklaşan duruşmalar
-/gelirler - Aylık gelir özeti
-/yardim - Bu yardım mesajı
-      `
-    } else {
-      responseText = 'Bilinmeyen komut. /yardim yazarak komutları görebilirsiniz.'
-    }
+        case '/durusmalar':
+          responseText = `⚖️ *Yaklaşan Duruşmalar*\\n\\nℹ️ Bu özellik için Supabase entegrasyonu gereklidir.`
+          break
 
-    // Send response
-    await fetch(
-      `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: responseText,
-          parse_mode: 'HTML',
-        }),
+        case '/gelirler':
+          responseText = `💰 *Aylık Gelir Özeti*\\n\\nℹ️ Bu özellik için Supabase entegrasyonu gereklidir.`
+          break
+
+        case '/yardim':
+        case '/help':
+          responseText = `📚 *Yardım*\\n\\nKullanılabilir komutlar:\\n/start - Botu başlat\\n/bugun - Bugünkü görevler\\n/durusmalar - Yaklaşan duruşmalar\\n/gelirler - Aylık gelir özeti\\n/yardim - Bu mesaj`
+          break
+
+        default:
+          responseText = `❓ Bilinmeyen komut. /yardim yazarak kullanılabilir komutları görebilirsiniz.`
       }
-    )
 
-    return NextResponse.json({ ok: true })
+      // Send response to Telegram
+      if (responseText) {
+        // Get bot token from environment or settings
+        const botToken = process.env.TELEGRAM_BOT_TOKEN
+        
+        if (!botToken) {
+          return NextResponse.json({ error: 'Bot token not configured' }, { status: 500 })
+        }
+
+        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: responseText,
+            parse_mode: 'Markdown'
+          })
+        })
+      }
+
+      return NextResponse.json({ success: true })
+    }
+
+    return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Telegram webhook error:', error)
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
-async function getTodayTasks(): Promise<string> {
-  const supabase = await createClient()
-  const today = new Date().toISOString().split('T')[0]
-
-  const { data: tasks } = await supabase
-    .from('tasks')
-    .select('*')
-    .gte('due_date', today)
-    .lte('due_date', today + 'T23:59:59')
-    .eq('status', 'todo')
-
-  if (!tasks || tasks.length === 0) {
-    return '✅ Bugün için görev yok!'
+// Webhook setup endpoint
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams
+  const botToken = searchParams.get('token')
+  
+  if (!botToken || botToken !== process.env.TELEGRAM_BOT_TOKEN) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  let message = '<b>📋 Bugünkü Görevler:</b>\n\n'
-  tasks.forEach((task, index) => {
-    message += `${index + 1}. ${task.title}\n`
-    if (task.client_name) message += `   👤 ${task.client_name}\n`
-    message += '\n'
-  })
-
-  return message
-}
-
-async function getUpcomingHearings(): Promise<string> {
-  const supabase = await createClient()
-  const today = new Date().toISOString()
-
-  const { data: hearings } = await supabase
-    .from('hearings')
-    .select('*')
-    .gte('hearing_date', today)
-    .eq('status', 'scheduled')
-    .order('hearing_date', { ascending: true })
-    .limit(5)
-
-  if (!hearings || hearings.length === 0) {
-    return '✅ Yaklaşan duruşma yok!'
-  }
-
-  let message = '<b>⚖️ Yaklaşan Duruşmalar:</b>\n\n'
-  hearings.forEach((hearing, index) => {
-    const date = new Date(hearing.hearing_date)
-    message += `${index + 1}. ${hearing.title}\n`
-    message += `   📅 ${date.toLocaleDateString('tr-TR')}\n`
-    message += `   👤 ${hearing.client_name}\n`
-    message += `   🏛️ ${hearing.court_name}\n\n`
-  })
-
-  return message
-}
-
-async function getMonthlyIncome(): Promise<string> {
-  const supabase = await createClient()
-  const now = new Date()
-  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
-  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
-
-  const { data: incomes } = await supabase
-    .from('financials')
-    .select('amount')
-    .eq('type', 'income')
-    .gte('transaction_date', firstDay)
-    .lte('transaction_date', lastDay)
-
-  const total = incomes?.reduce((sum, item) => sum + Number(item.amount), 0) || 0
-
-  return `<b>💰 Bu Ay Gelir:</b>\n\n${total.toLocaleString('tr-TR')} TL`
+  // Get webhook info
+  const response = await fetch(`https://api.telegram.org/bot${botToken}/getWebhookInfo`)
+  const data = await response.json()
+  
+  return NextResponse.json(data)
 }
