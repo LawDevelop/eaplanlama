@@ -339,16 +339,19 @@ export function useFinancial() {
     setFinancials(prev => prev.filter(f => f.id !== id))
   }
 
-  return { 
-    financials, 
-    loading, 
-    error, 
-    createFinancial, 
-    updateFinancial, 
-    deleteFinancial, 
-    refetch: fetchFinancials 
+  return {
+    financials,
+    loading,
+    error,
+    createFinancial,
+    updateFinancial,
+    deleteFinancial,
+    refetch: fetchFinancials
   }
 }
+
+// Alias for backwards compatibility
+export const useFinancials = useFinancial
 
 // ============================================
 // HOOK FOR CLIENTS
