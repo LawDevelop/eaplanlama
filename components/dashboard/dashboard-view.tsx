@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import {
   Calendar,
@@ -76,7 +76,28 @@ export function DashboardView() {
     })
   }, [tasks, hearings])
 
-  const monthlySummary = getMonthlySummary()
+  // Calculate monthly summary from financials
+  const monthlySummary = useMemo(() => {
+    const now = new Date()
+    const currentMonth = now.getMonth()
+    const currentYear = now.getFullYear()
+    
+    const monthlyFinancials = financials.filter(f => {
+      const date = new Date(f.transaction_date)
+      return date.getMonth() === currentMonth && date.getFullYear() === currentYear
+    })
+    
+    const income = monthlyFinancials
+      .filter(f => f.type === 'income')
+      .reduce((sum, f) => sum + f.amount, 0)
+    
+    const expense = monthlyFinancials
+      .filter(f => f.type === 'expense')
+      .reduce((sum, f) => sum + f.amount, 0)
+    
+    return { income, expense, balance: income - expense }
+  }, [financials])
+  
   const upcomingHearings = hearings.slice(0, 3)
   const urgentTasks = tasks.filter(t => t.priority === 'critical' && t.status !== 'completed').slice(0, 3)
 
