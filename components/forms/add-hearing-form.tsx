@@ -70,18 +70,26 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
     e.preventDefault()
     e.stopPropagation()
     
-    if (isSubmitting) return
+    console.log('Form submit triggered', { formData, isSubmitting, hasOnSubmit: !!onSubmit })
+    
+    if (isSubmitting) {
+      console.log('Already submitting, skipping')
+      return
+    }
+    
+    if (!onSubmit) {
+      console.log('No onSubmit handler provided')
+      return
+    }
     
     setIsSubmitting(true)
     try {
-      if (onSubmit) {
-        await onSubmit(formData)
-      } else {
-        console.log('Hearing data:', formData)
-        if (onClose) onClose()
-      }
+      console.log('Calling onSubmit with data:', formData)
+      await onSubmit(formData)
+      console.log('onSubmit completed successfully')
     } catch (error) {
       console.error('Error submitting hearing:', error)
+      throw error
     } finally {
       setIsSubmitting(false)
     }
@@ -253,22 +261,24 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
 
         {/* Actions */}
         <div className="flex gap-3 pt-4 border-t">
-          <Button 
-            type="button" 
-            onClick={handleCancel} 
-            variant="outline" 
+          <Button
+            type="button"
+            onClick={handleCancel}
+            variant="outline"
             className="flex-1"
           >
             İptal
           </Button>
-          <Button 
-            type="submit" 
-            disabled={isSubmitting}
-            className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
+          <button
+            type="submit"
+            className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-medium py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            onClick={(e) => {
+              console.log('Button clicked directly', { isSubmitting })
+            }}
           >
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="w-4 h-4" />
             {isSubmitting ? 'Kaydediliyor...' : (editHearing || initialData ? 'Güncelle' : 'Duruşma Ekle')}
-          </Button>
+          </button>
         </div>
       </form>
     </div>
