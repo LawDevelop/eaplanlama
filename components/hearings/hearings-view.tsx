@@ -341,6 +341,7 @@ export function HearingsView() {
             hearing_date: data.hearingDate,
             location: data.location,
             time: data.hearingTime,
+            file_number: data.fileNumber,
           })
           setShowAddForm(false)
         }}
@@ -358,6 +359,7 @@ export function HearingsView() {
           hearingDate: editingHearing.hearing_date,
           location: editingHearing.location,
           hearingTime: editingHearing.time,
+          fileNumber: editingHearing.file_number,
         } : undefined}
         onSubmit={async (data) => {
           if (editingHearing) {
@@ -368,6 +370,7 @@ export function HearingsView() {
               hearing_date: data.hearingDate,
               location: data.location,
               time: data.hearingTime,
+              file_number: data.fileNumber,
             })
             setEditingHearing(null)
           }

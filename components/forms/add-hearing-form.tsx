@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { X, Plus, Calendar as CalendarIcon, User, FileText, Scale, MapPin, Clock } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Card } from '@/components/ui/card'
@@ -42,6 +42,7 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
     hearingType: 'first',
     notes: '',
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (editHearing) {
@@ -61,13 +62,28 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
     }
   }, [editHearing, initialData])
 
+  const handleChange = useCallback((field: keyof Hearing, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (onSubmit) {
-      await onSubmit(formData)
-    } else {
-      console.log('Hearing data:', formData)
-      if (onClose) onClose()
+    e.stopPropagation()
+    
+    if (isSubmitting) return
+    
+    setIsSubmitting(true)
+    try {
+      if (onSubmit) {
+        await onSubmit(formData)
+      } else {
+        console.log('Hearing data:', formData)
+        if (onClose) onClose()
+      }
+    } catch (error) {
+      console.error('Error submitting hearing:', error)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -79,7 +95,7 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
     }
   }
 
-  const FormContent = () => (
+  const formContent = (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -103,12 +119,13 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
           <label className="block text-sm font-medium mb-2">
             Dava Başlığı <span className="text-red-500">*</span>
           </label>
-          <Input 
+          <input 
+            type="text"
             placeholder="Dava başlığı girin" 
             required 
             value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            className="h-12"
+            onChange={(e) => handleChange('title', e.target.value)}
+            className="flex h-12 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
 
@@ -119,11 +136,13 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
               <User className="w-4 h-4 inline mr-1" />
               Müvekkil Adı <span className="text-red-500">*</span>
             </label>
-            <Input 
+            <input 
+              type="text"
               placeholder="Müvekkil adı" 
               required 
               value={formData.clientName}
-              onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
+              onChange={(e) => handleChange('clientName', e.target.value)}
+              className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           </div>
           <div>
@@ -131,11 +150,13 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
               <FileText className="w-4 h-4 inline mr-1" />
               Dosya/Esas No <span className="text-red-500">*</span>
             </label>
-            <Input 
+            <input 
+              type="text"
               placeholder="2024/123" 
               required 
               value={formData.fileNumber}
-              onChange={(e) => setFormData({ ...formData, fileNumber: e.target.value })}
+              onChange={(e) => handleChange('fileNumber', e.target.value)}
+              className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           </div>
         </div>
@@ -146,11 +167,13 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
             <Scale className="w-4 h-4 inline mr-1" />
             Mahkeme <span className="text-red-500">*</span>
           </label>
-          <Input 
+          <input 
+            type="text"
             placeholder="Mahkeme adı (örn: Ankara 5. Aile Mahkemesi)" 
             required 
             value={formData.courtName}
-            onChange={(e) => setFormData({ ...formData, courtName: e.target.value })}
+            onChange={(e) => handleChange('courtName', e.target.value)}
+            className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
 
@@ -161,12 +184,12 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
               <CalendarIcon className="w-4 h-4 inline mr-1" />
               Duruşma Tarihi <span className="text-red-500">*</span>
             </label>
-            <Input 
+            <input 
               type="date" 
               required 
               value={formData.hearingDate}
-              onChange={(e) => setFormData({ ...formData, hearingDate: e.target.value })}
-              className="h-12"
+              onChange={(e) => handleChange('hearingDate', e.target.value)}
+              className="flex h-12 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           </div>
           <div>
@@ -174,12 +197,12 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
               <Clock className="w-4 h-4 inline mr-1" />
               Duruşma Saati <span className="text-red-500">*</span>
             </label>
-            <Input 
+            <input 
               type="time" 
               required 
               value={formData.hearingTime}
-              onChange={(e) => setFormData({ ...formData, hearingTime: e.target.value })}
-              className="h-12"
+              onChange={(e) => handleChange('hearingTime', e.target.value)}
+              className="flex h-12 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           </div>
         </div>
@@ -191,10 +214,12 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
               <MapPin className="w-4 h-4 inline mr-1" />
               Salon
             </label>
-            <Input 
+            <input 
+              type="text"
               placeholder="Salon no (opsiyonel)" 
               value={formData.location || ''}
-              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              onChange={(e) => handleChange('location', e.target.value)}
+              className="flex h-10 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           </div>
           <div>
@@ -203,7 +228,7 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
             </label>
             <select
               value={formData.hearingType}
-              onChange={(e) => setFormData({ ...formData, hearingType: e.target.value })}
+              onChange={(e) => handleChange('hearingType', e.target.value)}
               className="flex h-12 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <option value="first">İlk Duruşma</option>
@@ -221,7 +246,7 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
           <textarea
             placeholder="Duruşma ile ilgili notlar (opsiyonel)"
             value={formData.notes || ''}
-            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+            onChange={(e) => handleChange('notes', e.target.value)}
             className="flex min-h-[100px] w-full rounded-xl border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
           />
         </div>
@@ -238,10 +263,11 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
           </Button>
           <Button 
             type="submit" 
+            disabled={isSubmitting}
             className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
           >
             <Plus className="w-4 h-4 mr-2" />
-            {editHearing || initialData ? 'Güncelle' : 'Duruşma Ekle'}
+            {isSubmitting ? 'Kaydediliyor...' : (editHearing || initialData ? 'Güncelle' : 'Duruşma Ekle')}
           </Button>
         </div>
       </form>
@@ -268,7 +294,7 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
                 className="w-full max-w-lg max-h-[90vh] overflow-y-auto"
               >
                 <Card>
-                  <FormContent />
+                  {formContent}
                 </Card>
               </motion.div>
             </div>
@@ -278,7 +304,7 @@ export function AddHearingForm({ isOpen, onClose, editHearing, initialData, onSu
     )
   }
 
-  return <Card><FormContent /></Card>
+  return <Card>{formContent}</Card>
 }
 
 export function FloatingAddHearingButton({ onClick }: { onClick: () => void }) {

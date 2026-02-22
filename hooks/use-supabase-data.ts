@@ -36,6 +36,7 @@ export interface Hearing {
   title: string
   client_name?: string
   court_name?: string
+  file_number?: string
   hearing_date: string
   time?: string
   location?: string
