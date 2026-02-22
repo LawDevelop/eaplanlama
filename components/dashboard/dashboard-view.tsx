@@ -17,7 +17,7 @@ import {
   MoreVertical,
   DollarSign
 } from 'lucide-react'
-import { useTasks, useHearings, useFinancials } from '@/hooks/use-supabase-data'
+import { useTasks, useHearings, useFinancial } from '@/hooks/use-supabase-data'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -42,7 +42,7 @@ const item = {
 export function DashboardView() {
   const { tasks, loading: tasksLoading } = useTasks()
   const { hearings, loading: hearingsLoading } = useHearings()
-  const { getMonthlySummary, loading: financeLoading } = useFinancials()
+  const { financials, loading: financeLoading } = useFinancial()
   
   const [todayStats, setTodayStats] = useState({
     tasksCount: 0,

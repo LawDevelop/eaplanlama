@@ -3,10 +3,10 @@
 import { TrendingUp, TrendingDown, AlertCircle } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { formatCurrency } from '@/lib/utils'
-import { useFinancials } from '@/hooks/use-supabase-data'
+import { useFinancial } from '@/hooks/use-supabase-data'
 
 export function FinancialSummary() {
-  const { financials, loading } = useFinancials()
+  const { financials, loading } = useFinancial()
   
   // Bu ayin gelir ve giderleri
   const now = new Date()
