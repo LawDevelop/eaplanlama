@@ -128,9 +128,12 @@ export function TasksView() {
               </p>
             </div>
             <Button
-              onClick={() => setShowAddModal(true)}
+              onClick={() => {
+                console.log('Yeni Görev button clicked!')
+                setShowAddModal(true)
+              }}
               size="lg"
-              className="bg-white text-primary hover:bg-white/90 shadow-xl"
+              className="bg-white text-primary hover:bg-white/90 shadow-xl relative z-20"
             >
               <Plus className="w-5 h-5 mr-2" />
               Yeni Görev

@@ -62,9 +62,12 @@ export function HearingsView() {
               </p>
             </div>
             <Button
-              onClick={() => setShowAddForm(true)}
+              onClick={() => {
+                console.log('Yeni Duruşma button clicked!')
+                setShowAddForm(true)
+              }}
               size="lg"
-              className="bg-white text-amber-600 hover:bg-white/90 shadow-xl"
+              className="bg-white text-amber-600 hover:bg-white/90 shadow-xl relative z-20"
             >
               <Plus className="w-5 h-5 mr-2" />
               Yeni Duruşma
@@ -201,7 +204,14 @@ export function HearingsView() {
                 <Card className="p-12 text-center">
                   <Scale className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
                   <p className="text-muted-foreground mb-4">Duruşma bulunmamaktadır</p>
-                  <Button onClick={() => setShowAddForm(true)} variant="gradient">
+                  <Button
+                    onClick={() => {
+                      console.log('İlk Duruşma button clicked!')
+                      setShowAddForm(true)
+                    }}
+                    variant="gradient"
+                    className="relative z-20"
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     İlk Duruşmayı Oluştur
                   </Button>
